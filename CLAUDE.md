@@ -234,7 +234,7 @@ Editor visuale di Map e modalità Playlist Path (schermata 05 del canvas), pagin
 1. Prima di scrivere una chiamata API, leggere la rotta nel backend e la chiamata legacy corrispondente. Non dedurre i payload.
 2. Ogni composable e ogni modulo `services/api` nasce con i suoi test Vitest.
 3. Solo JavaScript: nessun file `.ts`, nessun `lang="ts"`. I file `.nuxt/*.d.ts` generati da Nuxt servono all'editor e non si toccano.
-4. Tutti i testi visibili passano da i18n, in EN e IT.
+4. Tutti i testi visibili passano da i18n, in EN e IT. Unica eccezione: la pagina provvisoria `/progress` (stato dei lavori per il team), solo in italiano, con i contenuti in `app/data/progress.js`. Va aggiornata quando si completa una funzione e rimossa al lancio; non deve mai citare problemi di sicurezza del backend.
 5. Nessun colore, raggio, ombra o font fuori dai temi; i componenti leggono solo token (vedi "Veste grafica").
 6. Prima di dichiarare chiuso un task: `pnpm lint && pnpm test` verdi, e la funzione provata nel browser contro il backend locale, con entrambi i temi se tocca l'interfaccia.
 7. Commit piccoli e descrittivi; non fare push né aprire PR senza richiesta esplicita.
