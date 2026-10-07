@@ -1,0 +1,4 @@
+/* Themes shipped with the app. The active one is chosen by <html data-theme="…">
+   (NUXT_PUBLIC_THEME). To re-skin the app, add a folder here and import it. */
+@import './epicentric/index.css';
+@import './bare/index.css';

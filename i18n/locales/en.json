@@ -1,0 +1,24 @@
+{
+  "shell": {
+    "navLabel": "App navigation",
+    "language": "Language"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "notWired": "Sign-in is not connected to the backend yet.",
+    "login": {
+      "title": "Welcome {strong}",
+      "titleStrong": "back.",
+      "submit": "Log in"
+    }
+  },
+  "catalog": {
+    "all": "All",
+    "sections": "Catalog sections",
+    "empty": "Your contents will appear here."
+  },
+  "keys": {
+    "empty": "Your Epikeys will appear here."
+  }
+}

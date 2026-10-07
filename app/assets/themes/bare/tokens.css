@@ -1,0 +1,85 @@
+/* "Bare" theme: neutral greys, system font, square corners, no shadows.
+   It exists to prove the skin can be removed: it must define exactly the same
+   token names as epicentric/tokens.css (checked by tests/unit/themes.test.js). */
+
+:root[data-theme='bare'] {
+  /* Superfici app */
+  --bg: #F2F2F2;
+  --bg-sidebar: #E4E4E4;
+  --bg-backdrop: #BDBDBD;
+  --surface-1: #FFFFFF;
+  --surface-2: #E9E9E9;
+  --line: #C4C4C4;
+  --muted-ui: #9A9A9A;
+
+  /* Testo */
+  --text: #111111;
+  --text-soft: #333333;
+  --text-muted: #5C5C5C;
+
+  /* Superfici "carta" */
+  --paper: #FFFFFF;
+  --paper-2: #EDEDED;
+  --paper-line: #C4C4C4;
+  --paper-card: #FFFFFF;
+  --ink: #111111;
+  --ink-2: #333333;
+  --ink-muted: #5C5C5C;
+
+  /* Azioni */
+  --primary: #9EC5FF;
+  --primary-text: #0B4FB3;
+  --primary-on-dark: #0B4FB3;
+  --secondary: #BFE3A8;
+
+  /* Livelli di precedenza */
+  --level-link: var(--primary);
+  --level-child: var(--secondary);
+  --level-parent: #B8E2F0;
+  --level-content: #D9D9D9;
+
+  /* Palette Epikey: dato scelto dall'utente, resta uguale in ogni tema */
+  --epikey-teal: #4FC1A6;
+  --epikey-yellow: #F2C14E;
+  --epikey-pink: #E86A92;
+  --epikey-blue: #6C9CF0;
+  --epikey-violet: #B49CF0;
+  --epikey-coral: #F08A5D;
+  --epikey-lime: #A8D672;
+  --epikey-sky: #7FD1E8;
+  --epikey-orange: #FFB84D;
+  --epikey-sand: #D5CFBD;
+
+  /* Tipografia */
+  --font: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fw-light: 400; --fw-regular: 400; --fw-semibold: 600; --fw-bold: 600; --fw-black: 700;
+  --fs-display: 48px;
+  --fs-h1: 32px;
+  --fs-h2: 22px;
+  --fs-body: 16px;
+  --fs-small: 14px;
+  --fs-caption: 12px;
+  --tracking-tight: 0;
+
+  /* Raggi */
+  --r-pill: 2px;
+  --r-xl: 0;
+  --r-lg: 0;
+  --r-md: 0;
+  --r-sm: 0;
+  --r-xs: 0;
+
+  /* Spaziatura */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px; --s-12: 48px;
+
+  /* Ombre */
+  --shadow-float: none;
+  --shadow-paper: none;
+  --glow-primary: none;
+
+  /* Forma Epikey */
+  --hex: none;
+
+  /* Controlli */
+  --tap: 44px;
+}

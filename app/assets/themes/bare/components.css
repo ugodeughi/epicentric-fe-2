@@ -1,0 +1,10 @@
+/* Per-component overrides of app/assets/css/component-tokens.css for the bare theme. */
+:root[data-theme='bare'],
+:root[data-theme='bare'] [data-surface] {
+  --card-border: 1px solid var(--border);
+  --hex-ratio: 1;
+  --hex-selected-scale: 1;
+  --hex-selected-filter: none;
+  --hex-selected-outline: 3px solid var(--fg);
+  --motion: 0ms linear;
+}

@@ -1,0 +1,107 @@
+/* Component tokens: the contract between components and themes.
+   Components read ONLY these variables and the general tokens of the active theme.
+   Themes may override any of them (see app/assets/themes/README.md).
+
+   Two surfaces exist (design spec): dark app background and cream "paper".
+   Wrap a region in data-surface="paper" (or "dark") to switch context. */
+
+/* Surface context: dark (default) */
+:root,
+[data-surface='dark'] {
+  --page-bg: var(--bg);
+  --fg: var(--text);
+  --fg-soft: var(--text-soft);
+  --fg-muted: var(--text-muted);
+  --border: var(--line);
+  --accent-text: var(--primary-on-dark);
+  --focus-ring: var(--primary-on-dark);
+  --card-bg: var(--surface-1);
+  --card-shadow: none;
+  --inset-bg: var(--surface-2);
+}
+
+/* Surface context: paper */
+[data-surface='paper'] {
+  --page-bg: var(--paper);
+  --fg: var(--ink);
+  --fg-soft: var(--ink-2);
+  --fg-muted: var(--ink-muted);
+  --border: var(--paper-line);
+  --accent-text: var(--primary-text);
+  --focus-ring: var(--primary-text);
+  --card-bg: var(--paper-card);
+  --card-shadow: var(--shadow-paper);
+  --inset-bg: var(--paper-2);
+}
+
+/* Declared on every surface root so values that depend on the context are recomputed. */
+:root,
+[data-surface] {
+  --motion: 180ms ease-out;
+
+  /* Titoli: light + black nella stessa riga */
+  --heading-weight-light: var(--fw-light);
+  --heading-weight-strong: var(--fw-black);
+  --heading-tracking: var(--tracking-tight);
+
+  /* Card e pannelli */
+  --card-radius: var(--r-md);
+  --card-border: 0 solid transparent;
+  --panel-radius: var(--r-xl);
+
+  /* Button */
+  --btn-height: var(--tap);
+  --btn-radius: var(--r-pill);
+  --btn-pad-x: var(--s-6);
+  --btn-font-weight: var(--fw-bold);
+  --btn-primary-bg: var(--primary);
+  --btn-primary-fg: var(--ink);
+  --btn-primary-shadow: var(--glow-primary);
+  --btn-secondary-bg: var(--inset-bg);
+  --btn-secondary-fg: var(--fg);
+  --btn-ghost-fg: var(--fg);
+
+  /* Chip */
+  --chip-radius: var(--r-pill);
+  --chip-bg: var(--inset-bg);
+  --chip-fg: var(--fg-soft);
+  --chip-active-bg: var(--fg);
+  --chip-active-fg: var(--page-bg);
+
+  /* Segmented */
+  --segmented-radius: var(--r-pill);
+  --segmented-bg: var(--inset-bg);
+  --segmented-fg: var(--fg-soft);
+  --segmented-active-bg: var(--fg);
+  --segmented-active-fg: var(--page-bg);
+
+  /* Switch */
+  --switch-radius: var(--r-pill);
+  --switch-off-bg: var(--muted-ui);
+  --switch-on-bg: var(--primary);
+  --switch-thumb: var(--paper);
+
+  /* Field */
+  --field-radius: var(--r-sm);
+  --field-bg: var(--inset-bg);
+  --field-fg: var(--fg);
+  --field-border: var(--border);
+
+  /* Navigazione app (sidebar / tab bar) */
+  --nav-bg: var(--bg-sidebar);
+  --nav-fg: var(--text);
+  --nav-fg-muted: var(--text-muted);
+  --nav-item-radius: var(--r-sm);
+  --nav-active-bg: var(--primary);
+  --nav-active-fg: var(--ink);
+  --nav-active-weight: var(--fw-bold);
+  --logo-mark: var(--primary);
+
+  /* Epikey (esagono) */
+  --hex-shape: var(--hex);
+  --hex-ratio: 1.15;
+  --hex-fg: var(--ink);
+  --hex-selected-scale: 1.12;
+  --hex-selected-filter: drop-shadow(0 0 12px var(--primary));
+  --hex-selected-outline: 0 solid transparent;
+}

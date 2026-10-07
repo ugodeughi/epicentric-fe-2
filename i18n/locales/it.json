@@ -1,0 +1,24 @@
+{
+  "shell": {
+    "navLabel": "Navigazione dell'app",
+    "language": "Lingua"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "notWired": "L'accesso non è ancora collegato al backend.",
+    "login": {
+      "title": "Bentornato {strong}",
+      "titleStrong": "su Epicentric.",
+      "submit": "Accedi"
+    }
+  },
+  "catalog": {
+    "all": "Tutto",
+    "sections": "Sezioni del Catalog",
+    "empty": "I tuoi contenuti compariranno qui."
+  },
+  "keys": {
+    "empty": "I tuoi Epikey compariranno qui."
+  }
+}
