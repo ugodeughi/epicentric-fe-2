@@ -11,6 +11,21 @@ export function useAuth() {
     user.value = User
   }
 
+  /**
+   * Creates the account and signs in straight away (the backend does not wait for the
+   * email confirmation).
+   * @param {{ email: string, password: string, birthday: string, language: string, campaign?: string }} input
+   */
+  async function signup(input) {
+    await api.users.signup(input)
+    await login({ email: input.email, password: input.password })
+  }
+
+  /** @param {string} code one-time code from the confirmation email */
+  function confirmEmail(code) {
+    return api.users.confirmEmail(code)
+  }
+
   async function logout() {
     try {
       if (token.value) await api.users.logout()
@@ -47,5 +62,15 @@ export function useAuth() {
     return api.users.resetPassword(input)
   }
 
-  return { user, isLoggedIn, login, logout, ensureUser, requestPasswordReset, resetPassword }
+  return {
+    user,
+    isLoggedIn,
+    login,
+    signup,
+    confirmEmail,
+    logout,
+    ensureUser,
+    requestPasswordReset,
+    resetPassword,
+  }
 }

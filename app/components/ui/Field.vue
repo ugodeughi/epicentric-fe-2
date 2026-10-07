@@ -7,6 +7,7 @@ const props = defineProps({
   autocomplete: { type: String, default: 'off' },
   required: { type: Boolean, default: false },
   minlength: { type: Number, default: undefined },
+  max: { type: String, default: undefined },
   hint: { type: String, default: '' },
 })
 
@@ -49,6 +50,7 @@ onMounted(() => {
         :autocomplete="autocomplete"
         :required="required"
         :minlength="minlength"
+        :max="max"
         :aria-describedby="hint ? `${id}-hint` : undefined"
       />
       <button

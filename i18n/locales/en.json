@@ -13,7 +13,8 @@
       "titleStrong": "back.",
       "submit": "Log in",
       "submitting": "Logging in…",
-      "forgot": "Forgot your password?"
+      "forgot": "Forgot your password?",
+      "noAccount": "New to Epicentric? Create an account"
     },
     "errors": {
       "invalid": "Email or password is incorrect.",
@@ -23,7 +24,10 @@
       "generic": "Something went wrong. Try again.",
       "resetLinkInvalid": "This link is no longer valid: it has expired or was already used.",
       "samePassword": "The new password must be different from the current one.",
-      "passwordMismatch": "The two passwords do not match."
+      "passwordMismatch": "The two passwords do not match.",
+      "emailUsed": "An account with this email already exists.",
+      "emailInvalid": "This email address is not valid.",
+      "underage": "You must be at least {age} years old to create an account."
     },
     "backToLogin": "Back to log in",
     "forgot": {
@@ -47,6 +51,28 @@
       "doneTitle": "Password updated.",
       "doneBody": "You can now log in with your new password.",
       "requestNew": "Request a new link"
+    },
+    "signup": {
+      "title": "Create your {strong}",
+      "titleStrong": "account.",
+      "confirmPassword": "Repeat the password",
+      "birthday": "Date of birth",
+      "birthdayHint": "You must be at least {age} years old.",
+      "terms": "I accept the {terms} and the {privacy}",
+      "termsLink": "terms of use",
+      "privacyLink": "privacy policy",
+      "submit": "Sign up",
+      "submitting": "Creating the account…",
+      "haveAccount": "Already have an account? Log in",
+      "newsletter": "I want to receive periodic product updates and tips",
+      "ageConfirmed": "I declare that I am of legal age"
+    },
+    "confirm": {
+      "title": "Email confirmation",
+      "pending": "Confirming your email address…",
+      "done": "Your email address is confirmed.",
+      "invalid": "This link is no longer valid: the address may already be confirmed.",
+      "openApp": "Open Epicentric"
     }
   },
   "catalog": {

@@ -20,14 +20,16 @@ pnpm dev
 
 L'app risponde su http://localhost:8082.
 
-| Indirizzo               | Cosa                                           |
-| ----------------------- | ---------------------------------------------- |
-| `/login`                | Accesso                                        |
-| `/forgot-password`      | Richiesta del link per reimpostare la password |
-| `/reset-password/:code` | Scelta della nuova password dal link ricevuto  |
-| `/app/catalog`          | Catalog (segnaposto)                           |
-| `/app/keys`             | Epikey (segnaposto)                            |
-| `/dev/ui`               | Galleria dei componenti, solo in sviluppo      |
+| Indirizzo               | Cosa                                            |
+| ----------------------- | ----------------------------------------------- |
+| `/login`                | Accesso                                         |
+| `/signup`               | Registrazione                                   |
+| `/confirm/:code`        | Conferma dell'indirizzo email dal link ricevuto |
+| `/forgot-password`      | Richiesta del link per reimpostare la password  |
+| `/reset-password/:code` | Scelta della nuova password dal link ricevuto   |
+| `/app/catalog`          | Catalog (segnaposto)                            |
+| `/app/keys`             | Epikey (segnaposto)                             |
+| `/dev/ui`               | Galleria dei componenti, solo in sviluppo       |
 
 ## Comandi
 

@@ -13,7 +13,8 @@
       "titleStrong": "su Epicentric.",
       "submit": "Accedi",
       "submitting": "Accesso in corso…",
-      "forgot": "Hai dimenticato la password?"
+      "forgot": "Hai dimenticato la password?",
+      "noAccount": "Non hai un account? Registrati"
     },
     "errors": {
       "invalid": "Email o password non corretti.",
@@ -23,7 +24,10 @@
       "generic": "Qualcosa non ha funzionato. Riprova.",
       "resetLinkInvalid": "Questo link non è più valido: è scaduto o è già stato usato.",
       "samePassword": "La nuova password deve essere diversa da quella attuale.",
-      "passwordMismatch": "Le due password non coincidono."
+      "passwordMismatch": "Le due password non coincidono.",
+      "emailUsed": "Esiste già un account con questa email.",
+      "emailInvalid": "Questo indirizzo email non è valido.",
+      "underage": "Per creare un account devi avere almeno {age} anni."
     },
     "backToLogin": "Torna all'accesso",
     "forgot": {
@@ -47,6 +51,28 @@
       "doneTitle": "Password aggiornata.",
       "doneBody": "Ora puoi accedere con la nuova password.",
       "requestNew": "Richiedi un nuovo link"
+    },
+    "signup": {
+      "title": "Crea il tuo {strong}",
+      "titleStrong": "account.",
+      "confirmPassword": "Ripeti la password",
+      "birthday": "Data di nascita",
+      "birthdayHint": "Devi avere almeno {age} anni.",
+      "terms": "Accetto i {terms} e l'{privacy}",
+      "termsLink": "termini d'uso",
+      "privacyLink": "informativa sulla privacy",
+      "submit": "Registrati",
+      "submitting": "Creazione dell'account…",
+      "haveAccount": "Hai già un account? Accedi",
+      "newsletter": "Voglio ricevere aggiornamenti periodici e consigli sul prodotto",
+      "ageConfirmed": "Dichiaro di essere maggiorenne"
+    },
+    "confirm": {
+      "title": "Conferma email",
+      "pending": "Conferma del tuo indirizzo email in corso…",
+      "done": "Il tuo indirizzo email è confermato.",
+      "invalid": "Questo link non è più valido: l'indirizzo potrebbe essere già confermato.",
+      "openApp": "Apri Epicentric"
     }
   },
   "catalog": {

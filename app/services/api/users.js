@@ -13,6 +13,30 @@ export function createUsersApi(api) {
       })
     },
 
+    /**
+     * Creates an account. The backend sends the confirmation email but does not require
+     * the confirmation to sign in.
+     * @param {{ email: string, password: string, birthday: string, language: string, campaign?: string }} input
+     *   `birthday` as YYYY-MM-DD, `language` as a backend language id ("english", "italiano")
+     */
+    signup({ email, password, birthday, language, campaign }) {
+      return api('users/signup', {
+        method: 'POST',
+        body: {
+          Email: email.trim().toLowerCase(),
+          Password: password,
+          Birthday: birthday,
+          Language: language,
+          Campaign: campaign || undefined,
+        },
+      })
+    },
+
+    /** Confirms the email address with the one-time code received by email. */
+    confirmEmail(code) {
+      return api(`users/email/confirm/${encodeURIComponent(code)}`)
+    },
+
     /** Invalidates the current token on the backend. */
     logout() {
       return api('users/logout', { method: 'POST' })

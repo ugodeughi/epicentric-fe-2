@@ -52,5 +52,8 @@ async function onSubmit() {
     <p>
       <NuxtLink to="/forgot-password">{{ t('auth.login.forgot') }}</NuxtLink>
     </p>
+    <p>
+      <NuxtLink to="/signup">{{ t('auth.login.noAccount') }}</NuxtLink>
+    </p>
   </form>
 </template>

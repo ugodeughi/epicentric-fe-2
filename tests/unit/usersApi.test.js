@@ -30,6 +30,35 @@ describe('users API', () => {
   })
 })
 
+describe('signup', () => {
+  it('creates the account with the backend field names', async () => {
+    const { fetchRaw, users } = usersWith('OK_USER_CREATED')
+    await users.signup({
+      email: ' New@Example.com ',
+      password: 'pw',
+      birthday: '1990-05-17',
+      language: 'italiano',
+    })
+
+    expect(fetchRaw).toHaveBeenCalledWith(
+      'users/signup',
+      expect.objectContaining({
+        method: 'POST',
+        body: { Email: 'new@example.com', Password: 'pw', Birthday: '1990-05-17', Language: 'italiano' },
+      }),
+    )
+  })
+
+  it('confirms the email with the one-time code', async () => {
+    const { fetchRaw, users } = usersWith({ confirmed: true })
+    await users.confirmEmail('abc 1')
+    expect(fetchRaw).toHaveBeenCalledWith(
+      'users/email/confirm/abc%201',
+      expect.objectContaining({ method: 'GET' }),
+    )
+  })
+})
+
 describe('password recovery', () => {
   it('asks for the reset link with the lowercased email', async () => {
     const { fetchRaw, users } = usersWith('OK')

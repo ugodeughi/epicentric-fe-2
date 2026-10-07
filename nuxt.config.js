@@ -40,6 +40,7 @@ export default defineNuxtConfig({
     '/signup': { ssr: true },
     '/forgot-password': { ssr: true },
     '/recover-password': { redirect: '/forgot-password' }, // percorso della legacy
+    '/confirm-account/**': { redirect: '/confirm/**' }, // link nelle email del backend
     '/invite/**': { ssr: true },
     '/reset-password/**': { ssr: true },
     '/confirm/**': { ssr: true },

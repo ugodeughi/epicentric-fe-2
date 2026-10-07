@@ -73,6 +73,7 @@ const filter = ref(false)
         <p class="muted">Un contenuto. Infiniti output.</p>
         <UiField v-model="text" label="Field" />
         <UiField v-model="secret" label="Password" type="password" />
+        <UiCheckbox v-model="enabled">Checkbox con <a href="#">un link</a> nel testo</UiCheckbox>
       </UiCard>
     </section>
   </div>

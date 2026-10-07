@@ -93,6 +93,14 @@
   --field-fg: var(--fg);
   --field-border: var(--border);
 
+  /* Checkbox */
+  --check-size: 20px;
+  --check-radius: calc(var(--r-xs) / 2);
+  --check-bg: var(--field-bg);
+  --check-border: var(--field-border);
+  --check-on-bg: var(--primary);
+  --check-on-fg: var(--ink);
+
   /* Navigazione app (sidebar / tab bar) */
   --nav-bg: var(--bg-sidebar);
   --nav-fg: var(--text);

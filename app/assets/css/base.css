@@ -72,6 +72,13 @@ textarea {
   gap: var(--s-6);
 }
 
+/* Tighter group inside a stack (e.g. a list of checkboxes). */
+.stack-tight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

@@ -43,7 +43,7 @@ pnpm test:e2e       # Playwright, con il Chrome installato; serve il backend avv
 pnpm build          # build Nitro node-server
 ```
 
-I test end-to-end usano un account di prova dedicato del backend locale, con credenziali in `.env` (`E2E_EMAIL`, `E2E_PASSWORD`); senza, i test che richiedono il login vengono saltati. Non usare mai account reali del dump.
+I test end-to-end non devono accumulare dati: la creazione dell'account è simulata con una risposta finta, tutto il resto è reale. Usano un account di prova dedicato del backend locale, con credenziali in `.env` (`E2E_EMAIL`, `E2E_PASSWORD`); senza, i test che richiedono il login vengono saltati. Non usare mai account reali del dump.
 
 Variabili: `NUXT_PUBLIC_API_BASE` (default locale `http://localhost:3001/api/`), `NUXT_PUBLIC_THEME` (default `epicentric`); in arrivo `NUXT_PUBLIC_TASKS_WS_URL`, `NUXT_PUBLIC_SENTRY_DSN`. Valori locali in `.env` (gitignored), elenco in `.env.example`.
 
@@ -100,7 +100,7 @@ tests/            unit/ (Vitest), e2e/ (Playwright)
 Regole di architettura:
 
 1. **I componenti non chiamano mai le API.** Componente → composable → `services/api`.
-2. **Una rotta per ogni vista.** Pubbliche alla radice: `/login`, `/signup`, `/invite/:code`, `/forgot-password`, `/reset-password/:code`, `/confirm/:code`. I percorsi della legacy (`/recover-password`) reindirizzano ai nuovi. App sotto `/app`: `/app/catalog/:section?`, `/app/items/:itemId`, `/app/keys/:keyId`. La sezione si chiama **Catalog** come nel canvas (non "library").
+2. **Una rotta per ogni vista.** Pubbliche alla radice: `/login`, `/signup`, `/invite/:code`, `/forgot-password`, `/reset-password/:code`, `/confirm/:code`. I percorsi della legacy e delle email del backend (`/recover-password`, `/confirm-account/:code`) reindirizzano ai nuovi. App sotto `/app`: `/app/catalog/:section?`, `/app/items/:itemId`, `/app/keys/:keyId`. La sezione si chiama **Catalog** come nel canvas (non "library").
 3. **Le modali solo per azioni brevi** (conferme, creazione rapida). Upload, guida e account sono pagine o drawer con URL proprio.
 4. **Il player vive nel layout `app`** e sopravvive ai cambi di rotta. Due componenti (desktop, mobile), un solo `usePlayer`, un solo motore audio.
 5. **Stato**: `useState` con chiavi per dominio (`session`, `items`, `keys`, `player`…), esposto solo tramite composable che incapsulano fetch, cache e mutazioni.
@@ -128,6 +128,8 @@ Letti nel codice il 7 ott 2026; ricontrollare se il backend cambia.
 - **Autenticazione** (`src/shared/middlewares/RouteAuthorize.js`): il token si legge nell'ordine da `Authorization: Bearer`, parametro di query `?token=`, cookie `auth`. Token mancante, non valido, scaduto o revocato → **HTTP 401** con `ResultText` `KO_INVALID_OR_MISSING_TOKEN` o `KO_JWT_TOKEN_EXPIRED`.
 - **Media nativi** (`<audio>`, `<img>`, download): non possono inviare l'header Bearer, quindi il token va passato come `?token=`. Il cookie `auth` del backend non si usa: il client chiama le API senza credenziali e il browser non lo salva.
 - **Login** `POST users/login` con `{ Email, Password }` → `Data: { Auth, User, InstanceState, License, Operations, Processes }`. Credenziali errate o utente inesistente: HTTP 200 con `KO_PASSWORD_INVALID`. Altri esiti: `KO_INVALID_LOGIN` (campi mancanti), `KO_LOCKED`, `KO_NOT_FOUND_DELETE_PENDING`. `User` è l'intero record del DB, hash della password compreso: lo schema Zod tiene solo i campi utili.
+- **Registrazione** `POST users/signup` con `{ Email, Password, Language, Birthday, Campaign, SharedSpaceCode }` → `Data: "OK_USER_CREATED"`; errori `KO_NO_DATA`, `KO_INVALID_EMAIL`, `KO_EMAIL_ALREADY_USED`. `Language` è un id della collezione `Language`: `english` o `italiano`. L'account è subito utilizzabile: il login non richiede la conferma dell'email. La legacy raccoglie la data di nascita solo per il controllo dei 18 anni e non la invia; la 2.0 la invia come `AAAA-MM-GG`. Il form ha tre caselle come nella legacy: termini e privacy (obbligatoria), newsletter (facoltativa; il backend non ha un campo, quindi non viene inviata), dichiarazione di maggiore età (obbligatoria). Il pulsante resta disabilitato finché non sono compilati email e password, spuntate le due caselle obbligatorie e la data di nascita indica almeno 18 anni.
+- **Conferma email** `GET users/email/confirm/:code` → `Data: { confirmed: true }`, codice sconosciuto → `KO_NOT_FOUND`; il codice vale una volta. Il link nelle email è `FRONTEND_URL/confirm-account/<code>`. Oggi il backend non genera il codice alla registrazione (vedi `docs/richieste-be.md`, A7).
 - **Recupero password** `POST users/password/recover` con `{ Email }` (ricerca sensibile alle maiuscole: inviare in minuscolo); email non registrata → `KO_USER_NOT_FOUND`, che l'interfaccia non deve mai rivelare. L'email contiene `FRONTEND_URL/reset-password/<token>`, valido un'ora.
 - **Reset password** `POST users/password/reset/:token` con `{ NewPassword }`. Token non valido o scaduto → envelope di *successo* con `Data: "KO_INVALID_TOKEN"`; stessa password di prima → `KO_PSW_MUST_BE_DIFFERENT`. Non esiste un endpoint per verificare il token prima dell'invio.
 - **Utente corrente** `GET users/current/details`; **logout** `POST users/logout` (revoca il token inviato come Bearer).
@@ -147,7 +149,7 @@ Letti nel codice il 7 ott 2026; ricontrollare se il backend cambia.
 - `middleware/auth.global.js`: senza token `/app/**` porta a `/login?redirect=…`; con il token `/login` e `/signup` portano a `/app` già lato server. Entrando nell'app il token viene verificato caricando l'utente.
 - Qualsiasi 401 azzera la sessione e riporta a `/login`.
 - I messaggi d'errore si ricavano dal `code` con una mappa verso chiavi i18n (esempio: `utils/authErrors.js`), sempre con un messaggio generico di riserva.
-- **Pagine SSR con form**: il pulsante di invio resta disabilitato fino all'idratazione e il form ha `method="post"`, così un invio nativo non mette mai le credenziali nell'URL. `UiField` conserva il testo digitato prima dell'idratazione.
+- **Pagine SSR con form**: il pulsante di invio resta disabilitato fino all'idratazione e il form ha `method="post"`, così un invio nativo non mette mai le credenziali nell'URL. `UiField` e `UiCheckbox` conservano quanto inserito prima dell'idratazione; un nuovo controllo di form deve fare lo stesso.
 
 ## Modello di dominio
 
@@ -187,7 +189,7 @@ Nessun codice applicativo: solo documenti in `docs/`.
 - [ ] 1.4 Design system base: ~~temi `epicentric` e `bare`, contratto dei token, Button, Chip, Segmented, Switch, Field, Card, Icon, EpikeyHex, galleria `/dev/ui`~~ fatti; mancano Dialog, BottomSheet/Drawer, Toast, Slider
 - [x] 1.5 Client API: plugin `api`, apertura envelope, errori tipizzati, header Bearer, gestione 401 (azzera stato → `/login`), primi schemi Zod
 - [x] 1.6 Auth: `useAuth`, token in cookie con `useCookie` (Secure, SameSite=Lax), `middleware/auth.global.ts`, redirect lato server di chi è già loggato
-- [ ] 1.7 Pagine pubbliche: ~~login, recupero password (`/forgot-password`), reset password (`/reset-password/:code`)~~ fatti; mancano signup, signup su invito, conferma account
+- [ ] 1.7 Pagine pubbliche: ~~login, signup, conferma account (`/confirm/:code`), recupero password (`/forgot-password`), reset password (`/reset-password/:code`)~~ fatti; manca signup su invito
 - [x] 1.8 Layout: `auth` e `app` (shell con sidebar su desktop e tab bar sotto gli 800 px, slot per il player)
 - [x] 1.9 i18n: `@nuxtjs/i18n` EN + IT senza prefisso nell'URL, lingua in cookie `ec-locale`, solo le chiavi effettivamente usate
 - [ ] 1.10 PWA base: manifest standalone, icone maskable, service worker in modalità prompt, pagina offline
