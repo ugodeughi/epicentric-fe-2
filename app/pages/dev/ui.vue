@@ -21,6 +21,7 @@ const tabs = [
 ]
 const enabled = ref(true)
 const text = ref('')
+const secret = ref('epicentric')
 const selected = ref('teal')
 const filter = ref(false)
 </script>
@@ -65,10 +66,13 @@ const filter = ref(false)
         />
       </div>
 
+      <UiAlert>Email o password non corretti.</UiAlert>
+
       <UiCard>
         <h2>Card</h2>
         <p class="muted">Un contenuto. Infiniti output.</p>
         <UiField v-model="text" label="Field" />
+        <UiField v-model="secret" label="Password" type="password" />
       </UiCard>
     </section>
   </div>

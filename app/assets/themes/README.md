@@ -5,12 +5,12 @@ struttura e comportamento e leggono l'aspetto da variabili CSS.
 
 ## Come è fatto un tema
 
-| File | Contenuto |
-|---|---|
-| `<tema>/tokens.css` | Token generali: colori, tipografia, raggi, spazi, ombre, forma dell'Epikey |
-| `<tema>/fonts.css` | Font del tema (facoltativo) |
-| `<tema>/components.css` | Correzioni ai token per componente (facoltativo) |
-| `<tema>/index.css` | Importa i file sopra |
+| File                    | Contenuto                                                                  |
+| ----------------------- | -------------------------------------------------------------------------- |
+| `<tema>/tokens.css`     | Token generali: colori, tipografia, raggi, spazi, ombre, forma dell'Epikey |
+| `<tema>/fonts.css`      | Font del tema (facoltativo)                                                |
+| `<tema>/components.css` | Correzioni ai token per componente (facoltativo)                           |
+| `<tema>/index.css`      | Importa i file sopra                                                       |
 
 I token per componente (`--btn-radius`, `--card-bg`, `--nav-active-bg`…) sono definiti una
 volta in `app/assets/css/component-tokens.css` e puntano ai token generali. Un tema li

@@ -1,5 +1,6 @@
 <script setup>
 const { t } = useI18n()
+const { user, logout } = useAuth()
 
 // Concept names (Catalog, Epikey) are product terms and are not translated.
 const items = [
@@ -18,6 +19,13 @@ const items = [
           <span>{{ item.label }}</span>
         </NuxtLink>
       </nav>
+      <div class="shell__account">
+        <span v-if="user" class="shell__user" :title="user.Email">{{ user.NickName || user.Email }}</span>
+        <button type="button" class="shell__link shell__logout" @click="logout">
+          <UiIcon name="logout" />
+          <span>{{ t('shell.logout') }}</span>
+        </button>
+      </div>
     </aside>
 
     <main class="shell__main">
@@ -68,6 +76,31 @@ const items = [
   transition: background var(--motion);
 }
 
+.shell__account {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin-top: auto;
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--nav-divider);
+}
+
+.shell__user {
+  overflow: hidden;
+  padding: 0 var(--s-4);
+  color: var(--nav-fg-muted);
+  font-size: var(--fs-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shell__logout {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
 .shell__link.router-link-active {
   background: var(--nav-active-bg);
   color: var(--nav-active-fg);
@@ -90,13 +123,26 @@ const items = [
     padding: var(--s-2) var(--s-3) calc(var(--s-2) + env(safe-area-inset-bottom));
   }
 
-  .shell__logo {
+  .shell__side {
+    flex-direction: row;
+    gap: var(--s-1);
+  }
+
+  .shell__logo,
+  .shell__user {
     display: none;
   }
 
   .shell__nav {
+    flex: 2;
     flex-direction: row;
-    justify-content: space-around;
+  }
+
+  .shell__account {
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    border: 0;
   }
 
   .shell__link {

@@ -81,6 +81,12 @@
   --switch-on-bg: var(--primary);
   --switch-thumb: var(--paper);
 
+  /* Alert (messaggi di esito nei form) */
+  --alert-radius: var(--r-sm);
+  --alert-bg: var(--inset-bg);
+  --alert-fg: var(--fg);
+  --alert-mark: var(--accent-text);
+
   /* Field */
   --field-radius: var(--r-sm);
   --field-bg: var(--inset-bg);
@@ -95,6 +101,7 @@
   --nav-active-bg: var(--primary);
   --nav-active-fg: var(--ink);
   --nav-active-weight: var(--fw-bold);
+  --nav-divider: var(--line);
   --logo-mark: var(--primary);
 
   /* Epikey (esagono) */

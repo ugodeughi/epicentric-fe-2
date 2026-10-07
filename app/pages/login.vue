@@ -2,20 +2,36 @@
 definePageMeta({ layout: 'auth' })
 
 const { t } = useI18n()
+const route = useRoute()
+const { login } = useAuth()
 useHead({ title: () => `${t('auth.login.submit')} · Epicentric` })
 
 const email = ref('')
 const password = ref('')
-const notWired = ref(false)
+const pending = ref(false)
+const errorKey = ref(null)
 
-// Authentication is connected in phase 1.6 (useAuth + API client).
-function onSubmit() {
-  notWired.value = true
+// method="post" on the form keeps credentials out of the URL should a native submit happen.
+const hydrated = useHydrated()
+
+async function onSubmit() {
+  if (pending.value) return
+  pending.value = true
+  errorKey.value = null
+
+  try {
+    await login({ email: email.value.trim(), password: password.value })
+    await navigateTo(safeRedirect(route.query.redirect))
+  } catch (error) {
+    errorKey.value = authErrorKey(error)
+  } finally {
+    pending.value = false
+  }
 }
 </script>
 
 <template>
-  <form class="login" @submit.prevent="onSubmit">
+  <form class="stack" method="post" @submit.prevent="onSubmit">
     <i18n-t keypath="auth.login.title" tag="h1" scope="global">
       <template #strong>
         <strong>{{ t('auth.login.titleStrong') }}</strong>
@@ -29,15 +45,12 @@ function onSubmit() {
       autocomplete="current-password"
       required
     />
-    <UiButton type="submit" block>{{ t('auth.login.submit') }}</UiButton>
-    <p v-if="notWired" class="muted" role="status">{{ t('auth.notWired') }}</p>
+    <UiAlert v-if="errorKey">{{ t(errorKey) }}</UiAlert>
+    <UiButton type="submit" block :disabled="!hydrated || pending">
+      {{ pending ? t('auth.login.submitting') : t('auth.login.submit') }}
+    </UiButton>
+    <p>
+      <NuxtLink to="/forgot-password">{{ t('auth.login.forgot') }}</NuxtLink>
+    </p>
   </form>
 </template>
-
-<style scoped>
-.login {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-6);
-}
-</style>

@@ -38,6 +38,8 @@ export default defineNuxtConfig({
     '/app/**': { ssr: false }, // app utente: SPA
     '/login': { ssr: true }, // pubbliche: SSR
     '/signup': { ssr: true },
+    '/forgot-password': { ssr: true },
+    '/recover-password': { redirect: '/forgot-password' }, // percorso della legacy
     '/invite/**': { ssr: true },
     '/reset-password/**': { ssr: true },
     '/confirm/**': { ssr: true },

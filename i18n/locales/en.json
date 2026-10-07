@@ -1,16 +1,52 @@
 {
   "shell": {
     "navLabel": "App navigation",
-    "language": "Language"
+    "language": "Language",
+    "logout": "Log out",
+    "account": "Account"
   },
   "auth": {
     "email": "Email",
     "password": "Password",
-    "notWired": "Sign-in is not connected to the backend yet.",
     "login": {
       "title": "Welcome {strong}",
       "titleStrong": "back.",
-      "submit": "Log in"
+      "submit": "Log in",
+      "submitting": "Logging in…",
+      "forgot": "Forgot your password?"
+    },
+    "errors": {
+      "invalid": "Email or password is incorrect.",
+      "locked": "This account is locked. Contact support.",
+      "deletePending": "This account is being deleted.",
+      "network": "The server cannot be reached. Check your connection and try again.",
+      "generic": "Something went wrong. Try again.",
+      "resetLinkInvalid": "This link is no longer valid: it has expired or was already used.",
+      "samePassword": "The new password must be different from the current one.",
+      "passwordMismatch": "The two passwords do not match."
+    },
+    "backToLogin": "Back to log in",
+    "forgot": {
+      "title": "Reset your {strong}",
+      "titleStrong": "password.",
+      "intro": "Enter the email of your account: we will send you a link to choose a new password.",
+      "submit": "Send the link",
+      "submitting": "Sending…",
+      "sentTitle": "Check your inbox.",
+      "sentBody": "If an account exists for {email}, we have sent a link to choose a new password.",
+      "sentHint": "The link is valid for one hour. If you cannot find the email, check the spam folder."
+    },
+    "reset": {
+      "title": "Choose a new {strong}",
+      "titleStrong": "password.",
+      "newPassword": "New password",
+      "confirmPassword": "Repeat the new password",
+      "rule": "At least {min} characters.",
+      "submit": "Save the password",
+      "submitting": "Saving…",
+      "doneTitle": "Password updated.",
+      "doneBody": "You can now log in with your new password.",
+      "requestNew": "Request a new link"
     }
   },
   "catalog": {
@@ -20,5 +56,9 @@
   },
   "keys": {
     "empty": "Your Epikeys will appear here."
+  },
+  "ui": {
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   }
 }

@@ -2,7 +2,7 @@
 
 Nuovo frontend di Epicentric: PWA in Nuxt 4 collegata al backend Node.js esistente. Sostituisce la beta in Vue 2.
 
-Stato: fondamenta. Sono pronti la struttura del progetto, il design system base con i temi, la shell dell'app e la pagina di login (non ancora collegata al backend). Il piano completo e le regole di lavoro sono in [`CLAUDE.md`](./CLAUDE.md).
+Stato: fondamenta. Sono pronti la struttura del progetto, il design system base con i temi, la shell dell'app, il client API e l'accesso con sessione (login, logout, protezione delle rotte). Il piano completo e le regole di lavoro sono in [`CLAUDE.md`](./CLAUDE.md).
 
 ## Requisiti
 
@@ -20,12 +20,14 @@ pnpm dev
 
 L'app risponde su http://localhost:8082.
 
-| Indirizzo | Cosa |
-|---|---|
-| `/login` | Pagina di accesso |
-| `/app/catalog` | Catalog (segnaposto) |
-| `/app/keys` | Epikey (segnaposto) |
-| `/dev/ui` | Galleria dei componenti, solo in sviluppo |
+| Indirizzo               | Cosa                                           |
+| ----------------------- | ---------------------------------------------- |
+| `/login`                | Accesso                                        |
+| `/forgot-password`      | Richiesta del link per reimpostare la password |
+| `/reset-password/:code` | Scelta della nuova password dal link ricevuto  |
+| `/app/catalog`          | Catalog (segnaposto)                           |
+| `/app/keys`             | Epikey (segnaposto)                            |
+| `/dev/ui`               | Galleria dei componenti, solo in sviluppo      |
 
 ## Comandi
 
@@ -36,17 +38,19 @@ pnpm preview      # anteprima della build
 pnpm lint         # ESLint + Stylelint
 pnpm lint:fix     # correzione automatica
 pnpm format       # Prettier
-pnpm test         # Vitest
+pnpm test         # Vitest (unit)
+pnpm test:e2e     # Playwright sul Chrome installato; serve il backend avviato
 ```
 
 ## Configurazione
 
 Variabili in `.env` (non versionato); l'elenco è in `.env.example`.
 
-| Variabile | Default | Significato |
-|---|---|---|
-| `NUXT_PUBLIC_API_BASE` | `http://localhost:3001/api/` | Indirizzo delle API del backend |
-| `NUXT_PUBLIC_THEME` | `epicentric` | Tema grafico: nome di una cartella in `app/assets/themes` |
+| Variabile                   | Default                      | Significato                                                                   |
+| --------------------------- | ---------------------------- | ----------------------------------------------------------------------------- |
+| `NUXT_PUBLIC_API_BASE`      | `http://localhost:3001/api/` | Indirizzo delle API del backend                                               |
+| `NUXT_PUBLIC_THEME`         | `epicentric`                 | Tema grafico: nome di una cartella in `app/assets/themes`                     |
+| `E2E_EMAIL`, `E2E_PASSWORD` | vuote                        | Account di prova per `pnpm test:e2e`; senza, i test con login vengono saltati |
 
 ## Stack
 
@@ -65,9 +69,14 @@ app/
   components/      ui/ (design system), app/ (shell), epikey/
   layouts/         auth, app
   pages/           rotte
-  composables/  services/api/  middleware/  plugins/  utils/
+  composables/     useSession, useAuth, useApi
+  services/api/    client HTTP e un modulo per dominio
+  schemas/         schemi Zod delle risposte
+  middleware/  plugins/  utils/
 i18n/locales/      en.json, it.json
 tests/unit/        test Vitest
+tests/e2e/         test Playwright
+docs/              richieste al backend
 ```
 
 ## Veste grafica e temi

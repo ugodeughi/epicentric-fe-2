@@ -65,6 +65,13 @@ textarea {
   outline-offset: 2px;
 }
 
+/* Vertical rhythm of forms and simple pages. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

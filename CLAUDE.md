@@ -38,11 +38,12 @@ pnpm dev            # http://localhost:8082
 pnpm lint           # ESLint + Stylelint (guardia sui token)
 pnpm lint:fix       # correzione automatica
 pnpm format         # Prettier
-pnpm test           # Vitest
+pnpm test           # Vitest (unit)
+pnpm test:e2e       # Playwright, con il Chrome installato; serve il backend avviato
 pnpm build          # build Nitro node-server
 ```
 
-Da aggiungere nei passi successivi: `pnpm test:e2e` (Playwright).
+I test end-to-end usano un account di prova dedicato del backend locale, con credenziali in `.env` (`E2E_EMAIL`, `E2E_PASSWORD`); senza, i test che richiedono il login vengono saltati. Non usare mai account reali del dump.
 
 Variabili: `NUXT_PUBLIC_API_BASE` (default locale `http://localhost:3001/api/`), `NUXT_PUBLIC_THEME` (default `epicentric`); in arrivo `NUXT_PUBLIC_TASKS_WS_URL`, `NUXT_PUBLIC_SENTRY_DSN`. Valori locali in `.env` (gitignored), elenco in `.env.example`.
 
@@ -99,7 +100,7 @@ tests/            unit/ (Vitest), e2e/ (Playwright)
 Regole di architettura:
 
 1. **I componenti non chiamano mai le API.** Componente → composable → `services/api`.
-2. **Una rotta per ogni vista.** Pubbliche alla radice: `/login`, `/signup`, `/invite/:code`, `/reset-password/:code`, `/confirm/:code`. App sotto `/app`: `/app/catalog/:section?`, `/app/items/:itemId`, `/app/keys/:keyId`. La sezione si chiama **Catalog** come nel canvas (non "library").
+2. **Una rotta per ogni vista.** Pubbliche alla radice: `/login`, `/signup`, `/invite/:code`, `/forgot-password`, `/reset-password/:code`, `/confirm/:code`. I percorsi della legacy (`/recover-password`) reindirizzano ai nuovi. App sotto `/app`: `/app/catalog/:section?`, `/app/items/:itemId`, `/app/keys/:keyId`. La sezione si chiama **Catalog** come nel canvas (non "library").
 3. **Le modali solo per azioni brevi** (conferme, creazione rapida). Upload, guida e account sono pagine o drawer con URL proprio.
 4. **Il player vive nel layout `app`** e sopravvive ai cambi di rotta. Due componenti (desktop, mobile), un solo `usePlayer`, un solo motore audio.
 5. **Stato**: `useState` con chiavi per dominio (`session`, `items`, `keys`, `player`…), esposto solo tramite composable che incapsulano fetch, cache e mutazioni.
@@ -124,7 +125,12 @@ Letti nel codice il 7 ott 2026; ricontrollare se il backend cambia.
 
 - **Envelope delle risposte**: `{ Success, Result: "OK"|"KO", ResultText, Data }`. Gli errori applicativi escono con `Result: "KO"` e il codice in `ResultText`, e di default con **HTTP 200**: il client API deve aprire l'envelope e trasformare i `KO` in errori tipizzati, non fidarsi dello status HTTP.
 - **Campi in PascalCase** (`Email`, `Password`, `MediaItemId`…). I DTO mantengono i nomi del backend.
-- **Autenticazione** (`src/shared/middlewares/RouteAuthorize.js`): prima `Authorization: Bearer`, poi cookie `auth`. Il login restituisce il token e imposta anche un cookie `auth` httpOnly sul dominio dell'API. Logout su `/api/users/logout`.
+- **Autenticazione** (`src/shared/middlewares/RouteAuthorize.js`): il token si legge nell'ordine da `Authorization: Bearer`, parametro di query `?token=`, cookie `auth`. Token mancante, non valido, scaduto o revocato → **HTTP 401** con `ResultText` `KO_INVALID_OR_MISSING_TOKEN` o `KO_JWT_TOKEN_EXPIRED`.
+- **Media nativi** (`<audio>`, `<img>`, download): non possono inviare l'header Bearer, quindi il token va passato come `?token=`. Il cookie `auth` del backend non si usa: il client chiama le API senza credenziali e il browser non lo salva.
+- **Login** `POST users/login` con `{ Email, Password }` → `Data: { Auth, User, InstanceState, License, Operations, Processes }`. Credenziali errate o utente inesistente: HTTP 200 con `KO_PASSWORD_INVALID`. Altri esiti: `KO_INVALID_LOGIN` (campi mancanti), `KO_LOCKED`, `KO_NOT_FOUND_DELETE_PENDING`. `User` è l'intero record del DB, hash della password compreso: lo schema Zod tiene solo i campi utili.
+- **Recupero password** `POST users/password/recover` con `{ Email }` (ricerca sensibile alle maiuscole: inviare in minuscolo); email non registrata → `KO_USER_NOT_FOUND`, che l'interfaccia non deve mai rivelare. L'email contiene `FRONTEND_URL/reset-password/<token>`, valido un'ora.
+- **Reset password** `POST users/password/reset/:token` con `{ NewPassword }`. Token non valido o scaduto → envelope di *successo* con `Data: "KO_INVALID_TOKEN"`; stessa password di prima → `KO_PSW_MUST_BE_DIFFERENT`. Non esiste un endpoint per verificare il token prima dell'invio.
+- **Utente corrente** `GET users/current/details`; **logout** `POST users/logout` (revoca il token inviato come Bearer).
 - **Playlist Engine nel backend**: `src/shared/engine/` (Intelligent Random, Play first, sequenze, path). Il frontend **non** reimplementa la generazione: chiede la playlist (`/api/maps/key/playlist`, `/api/maps/key/playlist/path`, `/api/links/playlist`, `/api/items/playlist`, `/api/users/current/playlist`) e la riproduce.
 - **Tracce della playlist**: ogni traccia porta `Gain`, `FadeIn`, `FadeOut`, `FadeOutStart`, `SkipTo`, `PlayDuration` più `Item`, `Link`, `Key` annidati (l'EQ arriva come `EqualizerId`). Resta da verificare se la precedenza Link > Epikey figlio > Epikey padre > contenuto è già risolta nei valori di traccia.
 - **Streaming**: `/api/streaming` (GET con range) e `POST /api/streaming/position` per salvare la posizione.
@@ -132,6 +138,16 @@ Letti nel codice il 7 ott 2026; ricontrollare se il backend cambia.
 - **Task asincroni**: la legacy non usa WebSocket, fa polling. Il Caddy di produzione espone solo `/api/*` dell'API Node: il WebSocket del task manager non è raggiungibile dal browser finché il backend non lo espone.
 - **Rotte non presenti nel backend Node**: commenti sui Link, sharing spaces, social, notifiche. In produzione le richieste non gestite vengono inoltrate a un vecchio backend; in locale non esistono. Sono fuori dall'MVP.
 - **Deploy attuale**: `play.epicentric.world` è servito da Caddy come file statici. La 2.0 richiede un upstream Node (Nitro).
+
+## Client API e sessione
+
+- `services/api/client.js`: unico client. Apre l'envelope, restituisce `Data`, lancia `ApiError` con `code` uguale al `ResultText` del backend (oppure `NETWORK_ERROR`, `INVALID_RESPONSE`). Con `schema` valida la risposta con Zod.
+- `services/api/<dominio>.js`: una funzione `create<Dominio>Api(api)` per dominio, registrata in `plugins/api.js` ed esposta da `useApi()`. Usa i nomi di campo del backend; gli argomenti delle funzioni sono in camelCase.
+- `useSession()`: token nel cookie `ec_token` (30 giorni, SameSite=Lax, Secure fuori dallo sviluppo) e utente in `useState`. `useAuth()`: `login`, `logout`, `ensureUser`.
+- `middleware/auth.global.js`: senza token `/app/**` porta a `/login?redirect=…`; con il token `/login` e `/signup` portano a `/app` già lato server. Entrando nell'app il token viene verificato caricando l'utente.
+- Qualsiasi 401 azzera la sessione e riporta a `/login`.
+- I messaggi d'errore si ricavano dal `code` con una mappa verso chiavi i18n (esempio: `utils/authErrors.js`), sempre con un messaggio generico di riserva.
+- **Pagine SSR con form**: il pulsante di invio resta disabilitato fino all'idratazione e il form ha `method="post"`, così un invio nativo non mette mai le credenziali nell'URL. `UiField` conserva il testo digitato prima dell'idratazione.
 
 ## Modello di dominio
 
@@ -156,7 +172,7 @@ Nessun codice applicativo: solo documenti in `docs/`.
 
 - [ ] `docs/inventario-funzioni.md`: ogni funzione legacy (pannelli, 50 modali, 11 moduli Vuex) classificata tieni / ripensa / scarta, con la rotta 2.0 di destinazione
 - [ ] `docs/mappa-endpoint.md`: per ogni endpoint usato nell'MVP metodo, path, payload, risposta reale, chiamata legacy corrispondente (`../epicentric-fe/src/api/*.js`)
-- [ ] `docs/richieste-be.md`: elenco delle richieste al backend (vedi "Prerequisiti lato backend")
+- [ ] `docs/richieste-be.md`: avviato (sicurezza, configurazione, coerenza delle API); da completare con la mappa degli endpoint
 - [ ] Risposta ai punti aperti verificabili sul codice: precedenza parametri, cookie per i media, codici di stato su token scaduto
 - [ ] `docs/ux-flows.md`: flussi di accesso, catalogo → Epikey → Link → play, upload
 - [ ] Verifica dei link nelle email del backend: la legacy usa `/confirm-account/:code`, `/invite-signup`, `/recover-password`; prevedere redirect verso le nuove rotte
@@ -166,12 +182,12 @@ Nessun codice applicativo: solo documenti in `docs/`.
 ### Fase 1 — Fondamenta (2 settimane)
 
 - [x] 1.1 Setup: Nuxt 4 in JavaScript, pnpm, `.nvmrc`, struttura cartelle, `routeRules`, porta 8082, `.env.example`
-- [ ] 1.2 Qualità: ~~ESLint, Stylelint, Prettier, Vitest, script~~ fatti; mancano Husky + lint-staged e Playwright
+- [ ] 1.2 Qualità: ~~ESLint, Stylelint, Prettier, Vitest, Playwright, script~~ fatti; manca Husky + lint-staged
 - [ ] 1.3 CI: GitHub Actions lint → test → build; anteprima per PR; deploy staging su `main`, produzione su tag
 - [ ] 1.4 Design system base: ~~temi `epicentric` e `bare`, contratto dei token, Button, Chip, Segmented, Switch, Field, Card, Icon, EpikeyHex, galleria `/dev/ui`~~ fatti; mancano Dialog, BottomSheet/Drawer, Toast, Slider
-- [ ] 1.5 Client API: plugin `api`, apertura envelope, errori tipizzati, header Bearer, gestione 401 (azzera stato → `/login`), primi schemi Zod
-- [ ] 1.6 Auth: `useAuth`, token in cookie con `useCookie` (Secure, SameSite=Lax), `middleware/auth.global.ts`, redirect lato server di chi è già loggato
-- [ ] 1.7 Pagine pubbliche: login (solo la pagina, non collegata), signup, signup su invito, conferma account, recupero e reset password
+- [x] 1.5 Client API: plugin `api`, apertura envelope, errori tipizzati, header Bearer, gestione 401 (azzera stato → `/login`), primi schemi Zod
+- [x] 1.6 Auth: `useAuth`, token in cookie con `useCookie` (Secure, SameSite=Lax), `middleware/auth.global.ts`, redirect lato server di chi è già loggato
+- [ ] 1.7 Pagine pubbliche: ~~login, recupero password (`/forgot-password`), reset password (`/reset-password/:code`)~~ fatti; mancano signup, signup su invito, conferma account
 - [x] 1.8 Layout: `auth` e `app` (shell con sidebar su desktop e tab bar sotto gli 800 px, slot per il player)
 - [x] 1.9 i18n: `@nuxtjs/i18n` EN + IT senza prefisso nell'URL, lingua in cookie `ec-locale`, solo le chiavi effettivamente usate
 - [ ] 1.10 PWA base: manifest standalone, icone maskable, service worker in modalità prompt, pagina offline
@@ -240,7 +256,7 @@ Editor visuale di Map e modalità Playlist Path (schermata 05 del canvas), pagin
 | Schema OpenAPI o collezione Postman? | **Chiuso**: non esiste; c'è `documents/routes_usage/epicentric_node_be_routes.md` |
 | WebSocket del task manager tramite Caddy? | Aperto: oggi non esposto. Si parte con il polling |
 | Precedenza parametri già risolta dal backend? | Da verificare in Fase 0 |
-| Cookie per le richieste native (`<audio>`, `<img>`) | Da verificare in Fase 0: queste richieste non possono inviare l'header Bearer e usano il cookie `auth`. Un cookie impostato da Nuxt su `play.` non arriva ad `api.node.` senza `Domain=.epicentric.world` |
+| Autenticazione delle richieste native (`<audio>`, `<img>`) | **Chiuso**: il backend accetta il token come `?token=` |
 | Design system da zero o su Nuxt UI / Reka UI? | Aperto. I primi componenti sono scritti a mano; proposta: Reka UI come base headless per Dialog, BottomSheet e Slider, stile interamente nostro |
 | Upload: Uppy o implementazione propria? | Aperto. Proposta: implementazione propria su `XMLHttpRequest` (`fetch` non espone il progresso di upload) |
 | Analytics: GA4 o soluzione cookieless? | Aperto, decisione di prodotto |

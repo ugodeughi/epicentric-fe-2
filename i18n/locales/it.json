@@ -1,16 +1,52 @@
 {
   "shell": {
     "navLabel": "Navigazione dell'app",
-    "language": "Lingua"
+    "language": "Lingua",
+    "logout": "Esci",
+    "account": "Account"
   },
   "auth": {
     "email": "Email",
     "password": "Password",
-    "notWired": "L'accesso non è ancora collegato al backend.",
     "login": {
       "title": "Bentornato {strong}",
       "titleStrong": "su Epicentric.",
-      "submit": "Accedi"
+      "submit": "Accedi",
+      "submitting": "Accesso in corso…",
+      "forgot": "Hai dimenticato la password?"
+    },
+    "errors": {
+      "invalid": "Email o password non corretti.",
+      "locked": "Questo account è bloccato. Contatta il supporto.",
+      "deletePending": "Questo account è in fase di cancellazione.",
+      "network": "Il server non è raggiungibile. Controlla la connessione e riprova.",
+      "generic": "Qualcosa non ha funzionato. Riprova.",
+      "resetLinkInvalid": "Questo link non è più valido: è scaduto o è già stato usato.",
+      "samePassword": "La nuova password deve essere diversa da quella attuale.",
+      "passwordMismatch": "Le due password non coincidono."
+    },
+    "backToLogin": "Torna all'accesso",
+    "forgot": {
+      "title": "Reimposta la {strong}",
+      "titleStrong": "password.",
+      "intro": "Inserisci l'email del tuo account: ti mandiamo un link per scegliere una nuova password.",
+      "submit": "Invia il link",
+      "submitting": "Invio in corso…",
+      "sentTitle": "Controlla la posta.",
+      "sentBody": "Se esiste un account per {email}, abbiamo inviato un link per scegliere una nuova password.",
+      "sentHint": "Il link vale un'ora. Se non trovi l'email, guarda nella cartella dello spam."
+    },
+    "reset": {
+      "title": "Scegli una nuova {strong}",
+      "titleStrong": "password.",
+      "newPassword": "Nuova password",
+      "confirmPassword": "Ripeti la nuova password",
+      "rule": "Almeno {min} caratteri.",
+      "submit": "Salva la password",
+      "submitting": "Salvataggio…",
+      "doneTitle": "Password aggiornata.",
+      "doneBody": "Ora puoi accedere con la nuova password.",
+      "requestNew": "Richiedi un nuovo link"
     }
   },
   "catalog": {
@@ -20,5 +56,9 @@
   },
   "keys": {
     "empty": "I tuoi Epikey compariranno qui."
+  },
+  "ui": {
+    "showPassword": "Mostra la password",
+    "hidePassword": "Nascondi la password"
   }
 }
