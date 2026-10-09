@@ -51,7 +51,7 @@ test.describe('with a test account', () => {
 
     // Signed-in users never see the login page.
     await page.goto('/login')
-    await expect(page).toHaveURL(/\/app\/catalog$/)
+    await expect(page).toHaveURL(/\/app\/keys$/)
 
     await page.getByRole('button', { name: 'Log out' }).click()
     await expect(page).toHaveURL(/\/login$/)

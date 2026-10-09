@@ -82,7 +82,7 @@ test.describe('with a test account', () => {
     await fillSignup(page)
     await submit(page).click()
 
-    await expect(page).toHaveURL(/\/app\/catalog$/)
+    await expect(page).toHaveURL(/\/app\/keys$/)
     await expect(page.getByText(email)).toBeVisible()
     expect(body).toEqual({ Email: email, Password: password, Birthday: '1990-05-17', Language: 'english' })
   })

@@ -34,7 +34,7 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/': { redirect: '/login' },
-    '/app': { redirect: '/app/catalog' },
+    '/app': { redirect: '/app/keys' },
     '/app/**': { ssr: false }, // app utente: SPA
     '/login': { ssr: true }, // pubbliche: SSR
     '/signup': { ssr: true },
@@ -42,7 +42,7 @@ export default defineNuxtConfig({
     '/forgot-password': { ssr: true },
     '/recover-password': { redirect: '/forgot-password' }, // percorso della legacy
     '/confirm-account/**': { redirect: '/confirm/**' }, // link nelle email del backend
-    '/invite/**': { ssr: true },
+    '/invite-signup': { redirect: '/signup' }, // inviti della legacy: la query resta
     '/reset-password/**': { ssr: true },
     '/confirm/**': { ssr: true },
   },

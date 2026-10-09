@@ -4,8 +4,8 @@ const { user, logout } = useAuth()
 
 // Concept names (Catalog, Epikey) are product terms and are not translated.
 const items = [
-  { to: '/app/catalog', icon: 'catalog', label: 'Catalog' },
   { to: '/app/keys', icon: 'epikey', label: 'Epikey' },
+  { to: '/app/catalog', icon: 'catalog', label: 'Catalog' },
 ]
 </script>
 

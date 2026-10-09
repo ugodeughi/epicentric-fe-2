@@ -100,7 +100,7 @@ test.describe('with a test account', () => {
     await page.getByLabel('Email').fill(email)
     await page.getByLabel('Password', { exact: true }).fill(temporary)
     await page.getByRole('button', { name: 'Log in' }).click()
-    await expect(page).toHaveURL(/\/app\/catalog$/)
+    await expect(page).toHaveURL(/\/app\/keys$/)
     await page.getByRole('button', { name: 'Log out' }).click()
     await expect(page).toHaveURL(/\/login$/)
   })
