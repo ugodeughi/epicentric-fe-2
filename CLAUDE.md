@@ -61,6 +61,7 @@ Variabili: `NUXT_PUBLIC_API_BASE` (default locale `http://127.0.0.1:21001/api/`)
 | PWA | `@vite-pwa/nuxt` (Workbox) |
 | i18n | `@nuxtjs/i18n`, EN default + IT |
 | UI | Design system proprio su CSS custom properties, veste grafica in temi sostituibili (vedi "Veste grafica"), icone SVG a tratto. Base headless: da decidere (vedi punti aperti) |
+| Map | **Vue Flow** (`@vue-flow/core`, `@vue-flow/background`) per il canvas delle Map di Epikeys: scelta di Stefano del 9 ott 2026. Vedi "Map con Vue Flow" |
 | Utility | VueUse, `@nuxt/image` per le miniature |
 | Tipi e validazione | Schemi Zod ai confini (risposte API) + JSDoc per l'autocompletamento |
 | Qualità | `@nuxt/eslint`, Stylelint, Prettier, Husky + lint-staged, Vitest + `@nuxt/test-utils`, Playwright |
@@ -118,6 +119,19 @@ Il progetto deve restare **svestibile**: tutta la veste sta in `app/assets/theme
 - **Colore Epikey**: scelto dall'utente tra 10 (`utils/epikeyPalette.js` → `--epikey-<id>`), uguale in ogni tema; il testo sopra è sempre `--ink`.
 - **Galleria**: `/dev/ui` mostra i componenti sulle due superfici con l'interruttore del tema. Ogni componente `ui/` nuovo va aggiunto lì e provato con entrambi i temi. La pagina è esclusa dalla build di produzione.
 - Regole del canvas da rispettare: una sola azione primaria per vista, target ≥ 44 px, elementi nativi (`button`, `a`, `input`) con `aria-*` sui controlli custom, niente emoji, i nomi dei concetti (Catalog, Epikey, Link, Map, Chain Link, Play first, Frequence, Freeze) non si traducono, `prefers-reduced-motion` rispettato.
+
+## Map con Vue Flow
+
+Il canvas delle Map (schermata 05 del canvas di design) si costruisce con [Vue Flow](https://vueflow.dev), sul branch `dev-maps`.
+
+- **Solo sotto `/app/**`** (SPA): Vue Flow lavora sul DOM e non va renderizzato sul server.
+- **Stili**: si importa solo `@vue-flow/core/dist/style.css` (struttura, obbligatorio). **Non** si importa `theme-default.css`: nodi, linee e maniglie si vestono con i nostri token, in `component-tokens.css`. `style.css` contiene due colori fissi (`--vf-handle`, `--vf-connection-path`): vanno ridefiniti con token del tema.
+- **Nodi ed edge propri**: un Epikey è un nodo di tipo `epikey`, reso da un nostro componente (`EpikeyHex`) tramite lo slot `#node-epikey`, con `Handle` per i collegamenti. Niente nodi predefiniti.
+- **Il contenitore deve avere altezza e larghezza esplicite**, altrimenti il canvas non compare.
+- **Stato**: componente → `useKeys`/composable della Map → `services/api`, come ovunque. `useVueFlow()` si usa per la vista (`fitView`, `zoomIn`, `zoomOut`, `setViewport`) e per gli eventi; i dati veri restano gli Epikey del backend, da cui si derivano `nodes` ed `edges`.
+- **Le modifiche passano dal backend prima di valere**: `:apply-default="false"` e `@nodes-change`/`@edges-change`, così cancellazioni e spostamenti si applicano solo dopo la conferma e la risposta dell'API (`applyNodeChanges`).
+- **Niente posizioni libere**: il modello `Key` non ha coordinate. La Map è un albero (`ParentId`, `Order`) con orientamento (`Horizontal`) e `Zoom`; la legacy lo dispone in automatico con un layout ad albero. Vue Flow non ha un layout proprio: le posizioni dei nodi si calcolano nel client. Trascinare un nodo significa cambiargli padre (`maps/key/move`) o ordine (`maps/key/setorder`), non spostarlo sul piano.
+- Controlli di zoom e simili sono componenti `ui/` nostri che chiamano `useVueFlow()`: non si usano `@vue-flow/controls` né `@vue-flow/minimap` finché non servono.
 
 ## Fatti verificati sul backend
 
@@ -220,7 +234,7 @@ Ordine pensato per avere presto il ciclo completo catalogo → Epikey → Link �
 
 ### Fuori dall'MVP
 
-Editor visuale di Map e modalità Playlist Path (schermata 05 del canvas), pagina "Risoluzione parametri" (08), landing pubblica (01, fa parte del sito vetrina), sharing spaces, social, commenti, abbonamenti Stripe, manutenzione/admin. Non svilupparli senza una decisione esplicita.
+Modalità Playlist Path (schermata 05 del canvas; l'editor visuale di Map invece **è in sviluppo** dal 9 ott 2026, sul branch `dev-maps`, per decisione di Stefano), pagina "Risoluzione parametri" (08), landing pubblica (01, fa parte del sito vetrina), sharing spaces, social, commenti, abbonamenti Stripe, manutenzione/admin. Non svilupparli senza una decisione esplicita.
 
 ## Obiettivi di qualità
 
