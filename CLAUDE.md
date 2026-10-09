@@ -71,7 +71,6 @@ routeRules: {
   '/app/**': { ssr: false },
   '/login': { ssr: true },
   '/signup': { ssr: true },
-  '/invite/**': { ssr: true },
   '/reset-password/**': { ssr: true },
   '/confirm/**': { ssr: true },
 }
@@ -101,7 +100,7 @@ tests/            unit/ (Vitest), e2e/ (Playwright)
 Regole di architettura:
 
 1. **I componenti non chiamano mai le API.** Componente → composable → `services/api`.
-2. **Una rotta per ogni vista.** Pubbliche alla radice: `/login`, `/signup`, `/invite/:code`, `/forgot-password`, `/reset-password/:code`, `/confirm/:code`. I percorsi della legacy e delle email del backend (`/recover-password`, `/confirm-account/:code`) reindirizzano ai nuovi. App sotto `/app`: `/app/catalog/:section?`, `/app/items/:itemId`, `/app/keys/:keyId`. La sezione si chiama **Catalog** come nel canvas (non "library").
+2. **Una rotta per ogni vista.** Pubbliche alla radice: `/login`, `/signup`, `/forgot-password`, `/reset-password/:code`, `/confirm/:code`. I percorsi della legacy e delle email del backend (`/recover-password`, `/confirm-account/:code`, `/invite-signup`) reindirizzano ai nuovi. App sotto `/app` (che porta a `/app/keys`): `/app/keys` (indice di Map ed Epikey), `/app/keys/:keyId` (con `?link=<id>` per il drawer del Link), `/app/catalog/:section?`, `/app/catalog/add`, `/app/items/:itemId`, `/app/links/new`, `/app/player`, `/app/search`, `/app/account`. Elenco e motivazioni in `docs/inventario-funzioni.md`. La sezione si chiama **Catalog** come nel canvas (non "library").
 3. **Le modali solo per azioni brevi** (conferme, creazione rapida). Upload, guida e account sono pagine o drawer con URL proprio.
 4. **Il player vive nel layout `app`** e sopravvive ai cambi di rotta. Due componenti (desktop, mobile), un solo `usePlayer`, un solo motore audio.
 5. **Stato**: `useState` con chiavi per dominio (`session`, `items`, `keys`, `player`…), esposto solo tramite composable che incapsulano fetch, cache e mutazioni.
@@ -122,7 +121,7 @@ Il progetto deve restare **svestibile**: tutta la veste sta in `app/assets/theme
 
 ## Fatti verificati sul backend
 
-Letti nel codice il 7 ott 2026; ricontrollare se il backend cambia.
+Letti nel codice il 7 e il 9 ott 2026; ricontrollare se il backend cambia. La mappa completa è in `docs/mappa-endpoint.md`.
 
 - **Envelope delle risposte**: `{ Success, Result: "OK"|"KO", ResultText, Data }`. Gli errori applicativi escono con `Result: "KO"` e il codice in `ResultText`, e di default con **HTTP 200**: il client API deve aprire l'envelope e trasformare i `KO` in errori tipizzati, non fidarsi dello status HTTP.
 - **Campi in PascalCase** (`Email`, `Password`, `MediaItemId`…). I DTO mantengono i nomi del backend.
@@ -135,10 +134,11 @@ Letti nel codice il 7 ott 2026; ricontrollare se il backend cambia.
 - **Reset password** `POST users/password/reset/:token` con `{ NewPassword }`. Token non valido o scaduto → envelope di *successo* con `Data: "KO_INVALID_TOKEN"`; stessa password di prima → `KO_PSW_MUST_BE_DIFFERENT`. Non esiste un endpoint per verificare il token prima dell'invio.
 - **Utente corrente** `GET users/current/details`; **logout** `POST users/logout` (revoca il token inviato come Bearer).
 - **Playlist Engine nel backend**: `src/shared/engine/` (Intelligent Random, Play first, sequenze, path). Il frontend **non** reimplementa la generazione: chiede la playlist (`/api/maps/key/playlist`, `/api/maps/key/playlist/path`, `/api/links/playlist`, `/api/items/playlist`, `/api/users/current/playlist`) e la riproduce.
-- **Tracce della playlist**: ogni traccia porta `Gain`, `FadeIn`, `FadeOut`, `FadeOutStart`, `SkipTo`, `PlayDuration` più `Item`, `Link`, `Key` annidati (l'EQ arriva come `EqualizerId`). Resta da verificare se la precedenza Link > Epikey figlio > Epikey padre > contenuto è già risolta nei valori di traccia.
-- **Streaming**: `/api/streaming` (GET con range) e `POST /api/streaming/position` per salvare la posizione.
-- **Upload**: `/api/items/upload`, Multer, limite 5 GiB per file.
-- **Task asincroni**: la legacy non usa WebSocket, fa polling. Il Caddy di produzione espone solo `/api/*` dell'API Node: il WebSocket del task manager non è raggiungibile dal browser finché il backend non lo espone.
+- **Tracce della playlist**: ogni traccia porta `Gain`, `FadeIn`, `FadeOut`, `FadeOutStart`, `SkipTo`, `PlayDuration` più `Item`, `Link`, `Key` annidati. **Precedenza**: audiocrop e volume sono già risolti dal backend (`SkipTo`/`PlayDuration`, `Gain` su scala 0–150); l'Epikey padre copia i suoi valori nei figli al salvataggio; l'EQ **non** è risolto (la traccia porta `Key.EqualizerId` e `Item.EqualizerId`, il Link non ha EQ) e i fade sono sempre 0. Dettagli in `docs/mappa-endpoint.md`.
+- **Una sola playlist per utente** (`Id` = id utente): ogni generazione la sovrascrive e non esiste una rotta per rileggerla.
+- **Streaming**: `GET streaming/:userId/audio/:position/:trackId?token=` restituisce **una traccia** della playlist salvata, transcodificata in MP3 al bitrate del piano, già tagliata sull'audiocrop. **Non accetta `Range`**: per spostarsi si cambia `:position` nell'URL, e la durata si prende da `PlayDuration`. Volume, EQ e fade non sono applicati dal server. `POST streaming/position` con `{ position, index, type }` salva la posizione.
+- **Upload**: `/api/items/upload`, Multer, campo `fileUpload`, massimo 4 file per richiesta, 5 GiB per file. Risponde senza envelope e in modo sincrono.
+- **Task asincroni**: il backend Node non ne ha sui contenuti (upload, URL, embed e bookmark sono sincroni; il task manager gestisce solo registrazione e pulizia). La legacy non usa WebSocket, fa polling di una rotta che nel backend Node non esiste. Il Caddy di produzione espone solo `/api/*` dell'API Node: il WebSocket del task manager non è raggiungibile dal browser finché il backend non lo espone.
 - **Rotte non presenti nel backend Node**: commenti sui Link, sharing spaces, social, notifiche. In produzione le richieste non gestite vengono inoltrate a un vecchio backend; in locale non esistono. Sono fuori dall'MVP.
 - **Deploy attuale**: `play.epicentric.world` è servito da Caddy come file statici. La 2.0 richiede un upstream Node (Nitro).
 
@@ -173,14 +173,14 @@ Si lavora una fase alla volta, nell'ordine. Una fase è chiusa solo quando il su
 
 Nessun codice applicativo: solo documenti in `docs/`.
 
-- [ ] `docs/inventario-funzioni.md`: ogni funzione legacy (pannelli, 50 modali, 11 moduli Vuex) classificata tieni / ripensa / scarta, con la rotta 2.0 di destinazione
-- [ ] `docs/mappa-endpoint.md`: per ogni endpoint usato nell'MVP metodo, path, payload, risposta reale, chiamata legacy corrispondente (`../epicentric-fe/src/api/*.js`)
-- [ ] `docs/richieste-be.md`: avviato (sicurezza, configurazione, coerenza delle API); da completare con la mappa degli endpoint
-- [ ] Risposta ai punti aperti verificabili sul codice: precedenza parametri, cookie per i media, codici di stato su token scaduto
-- [ ] `docs/ux-flows.md`: flussi di accesso, catalogo → Epikey → Link → play, upload
-- [ ] Verifica dei link nelle email del backend: la legacy usa `/confirm-account/:code`, `/invite-signup`, `/recover-password`; prevedere redirect verso le nuove rotte
+- [x] `docs/inventario-funzioni.md`: ogni funzione legacy (pannelli, 44 modali registrate, 11 moduli Vuex) classificata tieni / ripensa / rinvia / scarta, con la rotta 2.0 di destinazione. Decisioni D1–D15 accolte da Stefano il 9 ott 2026
+- [x] `docs/mappa-endpoint.md`: per ogni endpoint usato nell'MVP metodo, path, payload, risposta, chiamata legacy corrispondente (`../epicentric-fe/src/api/*.js`). Ricavata dal codice: le forme delle risposte vanno confermate dal vivo quando si scrive ogni modulo `services/api`
+- [x] `docs/richieste-be.md`: sicurezza (S1–S12), configurazione (C1–C5), coerenza e lacune (A1–A28). Da consegnare al backend
+- [x] Risposta ai punti aperti verificabili sul codice: precedenza parametri, cookie per i media, codici di stato su token scaduto
+- [x] `docs/ux-flows.md`: flussi di accesso, catalogo → Epikey → Link → play, upload
+- [x] Verifica dei link nelle email del backend: `/confirm-account/:code`, `/recover-password` e `/invite-signup` reindirizzano alle nuove rotte; `/reset-password/:code` è già uguale
 
-**Uscita**: inventario approvato da Stefano, elenco richieste al backend consegnato.
+**Uscita**: inventario approvato da Stefano, elenco richieste al backend consegnato. — inventario approvato; **manca la consegna di `docs/richieste-be.md` al backend**.
 
 ### Fase 1 — Fondamenta (2 settimane)
 
@@ -190,7 +190,7 @@ Nessun codice applicativo: solo documenti in `docs/`.
 - [ ] 1.4 Design system base: ~~temi `epicentric` e `bare`, contratto dei token, Button, Chip, Segmented, Switch, Field, Card, Icon, EpikeyHex, galleria `/dev/ui`~~ fatti; mancano Dialog, BottomSheet/Drawer, Toast, Slider
 - [x] 1.5 Client API: plugin `api`, apertura envelope, errori tipizzati, header Bearer, gestione 401 (azzera stato → `/login`), primi schemi Zod
 - [x] 1.6 Auth: `useAuth`, token in cookie con `useCookie` (Secure, SameSite=Lax), `middleware/auth.global.ts`, redirect lato server di chi è già loggato
-- [ ] 1.7 Pagine pubbliche: ~~login, signup, conferma account (`/confirm/:code`), recupero password (`/forgot-password`), reset password (`/reset-password/:code`)~~ fatti; manca signup su invito
+- [x] 1.7 Pagine pubbliche: ~~login, signup, conferma account (`/confirm/:code`), recupero password (`/forgot-password`), reset password (`/reset-password/:code`)~~ fatti. Il signup su invito è fuori dall'MVP (D4): `/invite-signup` reindirizza a `/signup`
 - [x] 1.8 Layout: `auth` e `app` (shell con sidebar su desktop e tab bar sotto gli 800 px, slot per il player)
 - [x] 1.9 i18n: `@nuxtjs/i18n` EN + IT senza prefisso nell'URL, lingua in cookie `ec-locale`, solo le chiavi effettivamente usate
 - [ ] 1.10 PWA base: manifest standalone, icone maskable, service worker in modalità prompt, pagina offline
@@ -206,7 +206,7 @@ Ordine pensato per avere presto il ciclo completo catalogo → Epikey → Link �
 - [ ] 2.1 Catalog: `/app/catalog/:section?` per le 4 sezioni, liste paginate e virtualizzate, filtri, miniature
 - [ ] 2.2 Dettaglio contenuto: `/app/items/:itemId`, metadati, viewer integrati (audio, immagini, video MP4 ed embed, PDF, bookmark)
 - [ ] 2.3 Acquisizione: upload multiplo con coda, progresso e retry; download dal web; embed video; bookmark
-- [ ] 2.4 Task asincroni: `useTasks` con polling, WebSocket quando il backend lo espone; notifiche in-app
+- [ ] 2.4 Notifiche in-app (toast) e aggiornamento delle miniature in elaborazione. Niente `useTasks` né WebSocket: il backend non ha task asincroni sui contenuti (D3)
 - [ ] 2.5 Epikeys: `/app/keys/:keyId`, liste gerarchiche, creazione, template
 - [ ] 2.6 Link: collegamento contenuti ↔ Epikey, lista dei Link di un Epikey, play da Link, freeze / unfreeze
 - [ ] 2.7 Player: `usePlayer`, coda da playlist del backend, componenti desktop e mobile, waveform, salvataggio posizione, Media Session
@@ -257,8 +257,8 @@ Editor visuale di Map e modalità Playlist Path (schermata 05 del canvas), pagin
 |---|---|
 | Playlist Engine: backend o client? | **Chiuso**: backend (`src/shared/engine/`) |
 | Schema OpenAPI o collezione Postman? | **Chiuso**: non esiste; c'è `documents/routes_usage/epicentric_node_be_routes.md` |
-| WebSocket del task manager tramite Caddy? | Aperto: oggi non esposto. Si parte con il polling |
-| Precedenza parametri già risolta dal backend? | Da verificare in Fase 0 |
+| WebSocket del task manager tramite Caddy? | **Chiuso** per l'MVP: non serve, il backend non ha task asincroni sui contenuti (D3) |
+| Precedenza parametri già risolta dal backend? | **Chiuso**: sì per audiocrop e volume, no per EQ e fade (vedi "Fatti verificati" e `docs/mappa-endpoint.md`) |
 | Autenticazione delle richieste native (`<audio>`, `<img>`) | **Chiuso**: il backend accetta il token come `?token=` |
 | Design system da zero o su Nuxt UI / Reka UI? | Aperto. I primi componenti sono scritti a mano; proposta: Reka UI come base headless per Dialog, BottomSheet e Slider, stile interamente nostro |
 | Upload: Uppy o implementazione propria? | Aperto. Proposta: implementazione propria su `XMLHttpRequest` (`fetch` non espone il progresso di upload) |
