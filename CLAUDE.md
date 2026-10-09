@@ -15,7 +15,7 @@ Nuovo frontend di Epicentric come PWA Nuxt, collegato al backend Node.js esisten
 |---|---|
 | `../epicentric-be/epicentric-node-backend` | Backend Node (Express + Prisma/MongoDB). Rotte in `src/routes/api/**/index.js`, schema in `src/shared/prisma/schema.prisma` |
 | `../epicentric-be/documents` | `DOCS.md`, `routes_usage/epicentric_node_be_routes.md`, `wiki_engine.md`, `Epicentric - LONG WIKI.md`, `engine/` |
-| `../epicentric-be/epicentric-tasks-manager` | Task manager Go (HTTP + WebSocket, porta 10000) |
+| `../epicentric-be/epicentric-tasks-manager` | Task manager Go (HTTP + WebSocket, in locale porta 21010) |
 | `../epicentric-fe` | Frontend legacy Vue 2.7: `src/api/*.js` (chiamate), `src/store/modules/*` (stato), `src/locales/{en,it}.json` |
 | `../AMBIENTE_LOCALE_MAC.md` | Come avviare backend, DB e Mailpit in locale |
 | `../_materiale/epicentric-handoff` | Canvas di design: `docs/design-spec.md` (linguaggio visivo, componenti, schermate), `design/tokens.css`, `design/screens/*.dc.html` (prototipi: riferimento visivo e di comportamento, non codice da copiare) |
@@ -24,17 +24,18 @@ Non modificare file in questi repository. Non stampare né copiare valori dai fi
 
 ## Ambiente locale
 
-- Backend: da `../epicentric-be`, `./run_local_mac.sh`. API su `http://localhost:3001/api/`, email catturate su `http://localhost:8025`.
-- **Porta di sviluppo: 8082.** La 3000 è occupata da un altro progetto, la 8080/8081 dal frontend legacy. `localhost:8082` è già tra le origini CORS del backend locale.
+- Backend: da `../epicentric-be`, `./run_local_mac.sh`. API su `http://127.0.0.1:21001/api/`, email catturate su `http://localhost:21025`.
+- **Porta di sviluppo: 21082.** In locale Epicentric usa solo il blocco 21000 (elenco in `../AMBIENTE_LOCALE_MAC.md`), per non scontrarsi con gli altri progetti sulla macchina: non usare porte fuori dal blocco. `localhost:21082` è già tra le origini CORS del backend locale.
+- L'URL delle API usa `127.0.0.1` e non `localhost`: un altro processo in ascolto solo su IPv6 sulla stessa porta intercetterebbe `localhost`.
 - Node 24 (`.nvmrc`), package manager **pnpm**. Niente npm o yarn. Nuxt 4.6 chiede Node `^22.21` o `^24.11`: con la 24.3.0 funziona ma avvisa, aggiornare con `nvm install 24`.
-- I link nelle email locali puntano a `localhost:8081` (`FRONTEND_URL` del backend): durante i test cambiare la porta a mano.
+- I link nelle email locali puntano a `localhost:21081` (`FRONTEND_URL` del backend): durante i test cambiare la porta a mano.
 - Lo storage locale è vuoto: i media del dump non si caricano. Per provare player e viewer servono contenuti caricati dal nuovo frontend.
 - Il DB locale contiene dati reali di produzione: non creare, modificare o cancellare utenti esistenti; usare account di test nuovi.
 
 Comandi:
 
 ```bash
-pnpm dev            # http://localhost:8082
+pnpm dev            # http://localhost:21082
 pnpm lint           # ESLint + Stylelint (guardia sui token)
 pnpm lint:fix       # correzione automatica
 pnpm format         # Prettier
@@ -45,7 +46,7 @@ pnpm build          # build Nitro node-server
 
 I test end-to-end non devono accumulare dati: la creazione dell'account è simulata con una risposta finta, tutto il resto è reale. Usano un account di prova dedicato del backend locale, con credenziali in `.env` (`E2E_EMAIL`, `E2E_PASSWORD`); senza, i test che richiedono il login vengono saltati. Non usare mai account reali del dump.
 
-Variabili: `NUXT_PUBLIC_API_BASE` (default locale `http://localhost:3001/api/`), `NUXT_PUBLIC_THEME` (default `epicentric`); in arrivo `NUXT_PUBLIC_TASKS_WS_URL`, `NUXT_PUBLIC_SENTRY_DSN`. Valori locali in `.env` (gitignored), elenco in `.env.example`.
+Variabili: `NUXT_PUBLIC_API_BASE` (default locale `http://127.0.0.1:21001/api/`), `NUXT_PUBLIC_THEME` (default `epicentric`); in arrivo `NUXT_PUBLIC_TASKS_WS_URL`, `NUXT_PUBLIC_SENTRY_DSN`. Valori locali in `.env` (gitignored), elenco in `.env.example`.
 
 ## Stack (decisioni prese)
 

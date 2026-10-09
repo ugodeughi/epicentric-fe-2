@@ -10,14 +10,14 @@ export default defineConfig({
   workers: 1,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:8082',
+    baseURL: 'http://localhost:21082',
     // The installed Chrome: no browser download needed.
     channel: 'chrome',
     trace: 'retain-on-failure',
   },
   webServer: {
     command: 'pnpm dev',
-    url: 'http://localhost:8082/login',
+    url: 'http://localhost:21082/login',
     reuseExistingServer: true,
     timeout: 60_000,
   },

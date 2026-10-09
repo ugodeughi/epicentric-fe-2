@@ -18,7 +18,7 @@ cp .env.example .env
 pnpm dev
 ```
 
-L'app risponde su http://localhost:8082.
+L'app risponde su http://localhost:21082.
 
 | Indirizzo               | Cosa                                                       |
 | ----------------------- | ---------------------------------------------------------- |
@@ -49,11 +49,11 @@ pnpm test:e2e     # Playwright sul Chrome installato; serve il backend avviato
 
 Variabili in `.env` (non versionato); l'elenco è in `.env.example`.
 
-| Variabile                   | Default                      | Significato                                                                   |
-| --------------------------- | ---------------------------- | ----------------------------------------------------------------------------- |
-| `NUXT_PUBLIC_API_BASE`      | `http://localhost:3001/api/` | Indirizzo delle API del backend                                               |
-| `NUXT_PUBLIC_THEME`         | `epicentric`                 | Tema grafico: nome di una cartella in `app/assets/themes`                     |
-| `E2E_EMAIL`, `E2E_PASSWORD` | vuote                        | Account di prova per `pnpm test:e2e`; senza, i test con login vengono saltati |
+| Variabile                   | Default                       | Significato                                                                   |
+| --------------------------- | ----------------------------- | ----------------------------------------------------------------------------- |
+| `NUXT_PUBLIC_API_BASE`      | `http://127.0.0.1:21001/api/` | Indirizzo delle API del backend                                               |
+| `NUXT_PUBLIC_THEME`         | `epicentric`                  | Tema grafico: nome di una cartella in `app/assets/themes`                     |
+| `E2E_EMAIL`, `E2E_PASSWORD` | vuote                         | Account di prova per `pnpm test:e2e`; senza, i test con login vengono saltati |
 
 ## Stack
 

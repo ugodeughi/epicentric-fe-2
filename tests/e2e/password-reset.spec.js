@@ -3,8 +3,8 @@ import { expect, test } from '@playwright/test'
 // Needs the backend, a dedicated test account and the local mail catcher (Mailpit).
 const email = process.env.E2E_EMAIL
 const password = process.env.E2E_PASSWORD
-const mailpit = process.env.E2E_MAILPIT_URL || 'http://localhost:8025'
-const apiBase = process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001/api/'
+const mailpit = process.env.E2E_MAILPIT_URL || 'http://localhost:21025'
+const apiBase = process.env.NUXT_PUBLIC_API_BASE || 'http://127.0.0.1:21001/api/'
 
 test.use({ locale: 'en-US' })
 
