@@ -116,7 +116,26 @@
   --hex-shape: var(--hex);
   --hex-ratio: 1.15;
   --hex-fg: var(--ink);
+  --hex-empty-bg: var(--paper-2); /* Epikey senza colore: chiaro, perché il testo sopra è sempre --ink */
   --hex-selected-scale: 1.12;
   --hex-selected-filter: drop-shadow(0 0 12px var(--primary));
   --hex-selected-outline: 0 solid transparent;
+
+  /* Selettore del colore Epikey */
+  --swatch-size: 28px;
+  --swatch-radius: var(--r-pill);
+  --swatch-selected-outline: 2px solid var(--fg);
+  --swatch-selected-scale: 1;
+
+  /* Map (canvas Vue Flow) */
+  --map-bg: var(--inset-bg);
+  --map-radius: var(--panel-radius);
+  --map-dot: var(--border);
+  --map-edge: var(--fg-muted);
+  --map-edge-width: 2px;
+  --map-node-focus-radius: var(--r-sm);
+  --map-control-bg: var(--card-bg);
+  --map-control-fg: var(--fg);
+  --map-control-hover-bg: var(--inset-bg);
+  --map-control-radius: var(--r-sm);
 }

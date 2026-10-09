@@ -80,8 +80,42 @@
     "sections": "Catalog sections",
     "empty": "Your contents will appear here."
   },
-  "keys": {
-    "empty": "Your Epikeys will appear here."
+  "maps": {
+    "canvasLabel": "Map of Epikeys",
+    "switch": "Map",
+    "loading": "Loading the Map…",
+    "retry": "Try again",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "fit": "Show the whole Map",
+    "links": "{n} Link | {n} Links",
+    "selectHint": "Select an Epikey to add one under it.",
+    "newKey": {
+      "title": "New Epikey",
+      "under": "Under {parent}",
+      "name": "Name",
+      "color": "Colour",
+      "submit": "Add Epikey",
+      "submitting": "Adding…"
+    },
+    "errors": {
+      "load": "The Map could not be loaded.",
+      "create": "The Epikey could not be created. Try again."
+    }
+  },
+  "epikey": {
+    "colors": {
+      "teal": "Teal",
+      "yellow": "Yellow",
+      "pink": "Pink",
+      "blue": "Blue",
+      "violet": "Violet",
+      "coral": "Coral",
+      "lime": "Lime",
+      "sky": "Sky blue",
+      "orange": "Orange",
+      "sand": "Sand"
+    }
   },
   "ui": {
     "showPassword": "Show password",

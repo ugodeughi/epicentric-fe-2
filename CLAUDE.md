@@ -62,7 +62,7 @@ Variabili: `NUXT_PUBLIC_API_BASE` (default locale `http://127.0.0.1:21001/api/`)
 | i18n | `@nuxtjs/i18n`, EN default + IT |
 | UI | Design system proprio su CSS custom properties, veste grafica in temi sostituibili (vedi "Veste grafica"), icone SVG a tratto. Base headless: da decidere (vedi punti aperti) |
 | Map | **Vue Flow** (`@vue-flow/core`, `@vue-flow/background`) per il canvas delle Map di Epikeys: scelta di Stefano del 9 ott 2026. Vedi "Map con Vue Flow" |
-| Utility | VueUse, `@nuxt/image` per le miniature |
+| Utility | VueUse, `@nuxt/image` per le miniature, `d3-hierarchy` per il layout ad albero delle Map |
 | Tipi e validazione | Schemi Zod ai confini (risposte API) + JSDoc per l'autocompletamento |
 | Qualità | `@nuxt/eslint`, Stylelint, Prettier, Husky + lint-staged, Vitest + `@nuxt/test-utils`, Playwright |
 | Monitoraggio | Sentry con source map caricate e non pubblicate |
@@ -88,7 +88,7 @@ app/
   components/     ui/ (design system) + <dominio>/ (app, epikey…)
   composables/    useAuth, useItems, useKeys, useLinks, usePlayer, useTasks…
   services/api/   client $fetch + un modulo per dominio
-                  (users, items, links, maps, streaming, application)
+                  (users, maps; poi items, links, streaming, application)
   schemas/        schemi Zod allineati ai modelli Prisma
   utils/          funzioni pure (auto-importate)
   middleware/     auth.global.ts
@@ -125,12 +125,13 @@ Il progetto deve restare **svestibile**: tutta la veste sta in `app/assets/theme
 Il canvas delle Map (schermata 05 del canvas di design) si costruisce con [Vue Flow](https://vueflow.dev), sul branch `dev-maps`.
 
 - **Solo sotto `/app/**`** (SPA): Vue Flow lavora sul DOM e non va renderizzato sul server.
-- **Stili**: si importa solo `@vue-flow/core/dist/style.css` (struttura, obbligatorio). **Non** si importa `theme-default.css`: nodi, linee e maniglie si vestono con i nostri token, in `component-tokens.css`. `style.css` contiene due colori fissi (`--vf-handle`, `--vf-connection-path`): vanno ridefiniti con token del tema.
-- **Nodi ed edge propri**: un Epikey è un nodo di tipo `epikey`, reso da un nostro componente (`EpikeyHex`) tramite lo slot `#node-epikey`, con `Handle` per i collegamenti. Niente nodi predefiniti.
+- **Stili**: si importa solo `@vue-flow/core/dist/style.css` (struttura, obbligatorio). **Non** si importa `theme-default.css`: nodi, linee e maniglie si vestono con i nostri token, in `component-tokens.css`. `style.css` contiene due colori fissi, sul tratto delle linee: si sovrascrivono con `:deep()` nel componente del canvas, insieme al colore dei puntini dello sfondo.
+- **Nodi propri**: un Epikey è un nodo di tipo `epikey`, reso con `EpikeyHex` dentro un `<button>` nativo tramite lo slot `#node-epikey`; gli `Handle` sono invisibili e servono solo ad ancorare le linee. Vue Flow toglie gli eventi del puntatore ai nodi non trascinabili e non selezionabili: il pulsante li riattiva con `pointer-events: all`. La selezione è nostra (`selectedId`), non quella di Vue Flow.
 - **Il contenitore deve avere altezza e larghezza esplicite**, altrimenti il canvas non compare.
 - **Stato**: componente → `useKeys`/composable della Map → `services/api`, come ovunque. `useVueFlow()` si usa per la vista (`fitView`, `zoomIn`, `zoomOut`, `setViewport`) e per gli eventi; i dati veri restano gli Epikey del backend, da cui si derivano `nodes` ed `edges`.
 - **Le modifiche passano dal backend prima di valere**: `:apply-default="false"` e `@nodes-change`/`@edges-change`, così cancellazioni e spostamenti si applicano solo dopo la conferma e la risposta dell'API (`applyNodeChanges`).
-- **Niente posizioni libere**: il modello `Key` non ha coordinate. La Map è un albero (`ParentId`, `Order`) con orientamento (`Horizontal`) e `Zoom`; la legacy lo dispone in automatico con un layout ad albero. Vue Flow non ha un layout proprio: le posizioni dei nodi si calcolano nel client. Trascinare un nodo significa cambiargli padre (`maps/key/move`) o ordine (`maps/key/setorder`), non spostarlo sul piano.
+- **File**: `components/map/Canvas.vue` (canvas), `utils/mapLayout.js` (albero → nodi e linee, con `d3-hierarchy`), `composables/useMaps.js`, `services/api/maps.js`, `schemas/key.js`; pagina `/app/keys?map=<id>`.
+- **Niente posizioni libere** (per ora: Stefano valuterà in seguito se salvarle nel database): il modello `Key` non ha coordinate. La Map è un albero (`ParentId`, `Order`) con orientamento (`Horizontal`) e `Zoom`; la legacy lo dispone in automatico con un layout ad albero. Vue Flow non ha un layout proprio: le posizioni dei nodi si calcolano nel client. Trascinare un nodo significa cambiargli padre (`maps/key/move`) o ordine (`maps/key/setorder`), non spostarlo sul piano.
 - Controlli di zoom e simili sono componenti `ui/` nostri che chiamano `useVueFlow()`: non si usano `@vue-flow/controls` né `@vue-flow/minimap` finché non servono.
 
 ## Fatti verificati sul backend
@@ -221,7 +222,7 @@ Ordine pensato per avere presto il ciclo completo catalogo → Epikey → Link �
 - [ ] 2.2 Dettaglio contenuto: `/app/items/:itemId`, metadati, viewer integrati (audio, immagini, video MP4 ed embed, PDF, bookmark)
 - [ ] 2.3 Acquisizione: upload multiplo con coda, progresso e retry; download dal web; embed video; bookmark
 - [ ] 2.4 Notifiche in-app (toast) e aggiornamento delle miniature in elaborazione. Niente `useTasks` né WebSocket: il backend non ha task asincroni sui contenuti (D3)
-- [ ] 2.5 Epikeys: `/app/keys/:keyId`, liste gerarchiche, creazione, template
+- [ ] 2.5 Epikeys: ~~Map come albero su canvas Vue Flow in `/app/keys`, cambio di Map, creazione di un Epikey con nome e colore~~ fatti; mancano `/app/keys/:keyId`, rinomina, sposta, riordina, cancella, nuova Map, template
 - [ ] 2.6 Link: collegamento contenuti ↔ Epikey, lista dei Link di un Epikey, play da Link, freeze / unfreeze
 - [ ] 2.7 Player: `usePlayer`, coda da playlist del backend, componenti desktop e mobile, waveform, salvataggio posizione, Media Session
 - [ ] 2.8 Playlist Engine: pannello impostazioni per Epikey e per Link (Intelligent Random, Chain Link, Play first, Frequenza, Freeze)

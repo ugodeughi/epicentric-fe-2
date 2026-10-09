@@ -99,8 +99,8 @@ export const PROGRESS_DONE = [
         detail: 'Sotto gli 800 px la navigazione passa in fondo allo schermo.',
       },
       {
-        title: 'Pagine Catalog ed Epikey',
-        detail: 'Presenti come segnaposto, con le sezioni Audio, Visual, Other Files e Bookmarks.',
+        title: 'Pagina Catalog',
+        detail: 'Presente come segnaposto, con le sezioni Audio, Visual, Other Files e Bookmarks.',
       },
       {
         title: 'Italiano e inglese',
@@ -245,6 +245,36 @@ export const PROGRESS_DONE = [
       { title: 'Documentazione', detail: 'Guida di progetto, istruzioni di avvio e guida ai temi.' },
     ],
   },
+  {
+    title: 'Map degli Epikey',
+    intro: 'La pagina Epikey mostra la Map come un albero che si può esplorare.',
+    items: [
+      {
+        title: 'Map ad albero',
+        detail:
+          'Gli Epikey sono esagoni colorati collegati al loro Epikey padre; la disposizione è calcolata in automatico, come nella versione precedente.',
+      },
+      {
+        title: 'Esplorazione',
+        detail:
+          'Si trascina per spostarsi, si ingrandisce e si riduce, e un pulsante riporta in vista tutta la Map.',
+      },
+      {
+        title: 'Nuovo Epikey',
+        detail: 'Si seleziona un Epikey e se ne aggiunge uno sotto, con nome e colore scelto tra dieci.',
+      },
+      {
+        title: 'Più Map',
+        detail:
+          'Chi ha più di una Map passa dall’una all’altra; la Map aperta resta nell’indirizzo della pagina.',
+      },
+      {
+        title: 'Colori compatibili',
+        detail:
+          'I colori scelti nella versione precedente vengono mostrati con il colore più vicino tra i dieci disponibili.',
+      },
+    ],
+  },
 ]
 
 /** @type {{ title: string, items: string[] }[]} */
@@ -252,7 +282,6 @@ export const PROGRESS_NEXT = [
   {
     title: 'Per completare le fondamenta',
     items: [
-      'Registrazione su invito',
       'App installabile (PWA): icone, funzionamento senza rete, avviso di nuova versione',
       'Prototipo del player audio provato su telefoni reali',
       'Controlli automatici a ogni modifica sul repository (CI) e monitoraggio degli errori',
@@ -264,7 +293,7 @@ export const PROGRESS_NEXT = [
     items: [
       'Catalog: elenchi, filtri, miniature, dettaglio e visualizzatori dei contenuti',
       'Acquisizione: caricamento di più file, download dal web, video incorporati, bookmark',
-      'Epikey: elenchi gerarchici, creazione, modelli',
+      'Epikey: pagina del singolo Epikey, rinomina, spostamento, riordino, cancellazione, nuova Map, modelli',
       'Link: collegamento tra contenuti ed Epikey, riproduzione da Link, Freeze',
       'Player: playlist generate dal backend, versioni desktop e mobile, forma d’onda',
       'Impostazioni del Playlist Engine e personalizzazione (volume, equalizzatore, ritaglio)',

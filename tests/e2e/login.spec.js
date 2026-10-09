@@ -46,7 +46,7 @@ test.describe('with a test account', () => {
     await expect(page.getByText(email)).toBeVisible()
 
     await page.reload()
-    await expect(page.getByRole('heading', { name: 'Epikey' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /^Map/ })).toBeVisible()
     await expect(page.getByText(email)).toBeVisible()
 
     // Signed-in users never see the login page.

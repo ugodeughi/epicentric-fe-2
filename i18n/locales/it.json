@@ -80,8 +80,42 @@
     "sections": "Sezioni del Catalog",
     "empty": "I tuoi contenuti compariranno qui."
   },
-  "keys": {
-    "empty": "I tuoi Epikey compariranno qui."
+  "maps": {
+    "canvasLabel": "Map degli Epikey",
+    "switch": "Map",
+    "loading": "Carico la Map…",
+    "retry": "Riprova",
+    "zoomIn": "Ingrandisci",
+    "zoomOut": "Riduci",
+    "fit": "Mostra tutta la Map",
+    "links": "{n} Link",
+    "selectHint": "Seleziona un Epikey per aggiungerne uno sotto.",
+    "newKey": {
+      "title": "Nuovo Epikey",
+      "under": "Sotto {parent}",
+      "name": "Nome",
+      "color": "Colore",
+      "submit": "Aggiungi Epikey",
+      "submitting": "Aggiungo…"
+    },
+    "errors": {
+      "load": "Non è stato possibile caricare la Map.",
+      "create": "Non è stato possibile creare l'Epikey. Riprova."
+    }
+  },
+  "epikey": {
+    "colors": {
+      "teal": "Verde acqua",
+      "yellow": "Giallo",
+      "pink": "Rosa",
+      "blue": "Blu",
+      "violet": "Viola",
+      "coral": "Corallo",
+      "lime": "Lime",
+      "sky": "Celeste",
+      "orange": "Arancio",
+      "sand": "Sabbia"
+    }
   },
   "ui": {
     "showPassword": "Mostra la password",
