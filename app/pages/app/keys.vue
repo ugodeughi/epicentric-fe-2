@@ -3,7 +3,18 @@ definePageMeta({ layout: 'app' })
 
 const { t } = useI18n()
 const route = useRoute()
-const { maps, tree, status, open, createKey } = useMaps()
+const {
+  maps,
+  tree,
+  status,
+  open,
+  createKey,
+  setBackground,
+  setBackgroundFromCatalog,
+  removeBackground,
+  setBackgroundDim,
+} = useMaps()
+const { image } = useMediaUrl()
 
 useHead({ title: () => `${tree.value?.Text || 'Epikey'} · Epicentric` })
 
@@ -48,6 +59,66 @@ async function onCreate() {
     creating.value = false
   }
 }
+
+// Image behind the Map
+const BACKGROUND_SIZE = 1600
+const backgroundUrl = computed(() => image(tree.value?.BackgroundImage, BACKGROUND_SIZE))
+const backgroundPreview = computed(() => image(tree.value?.BackgroundImage, 320))
+const fileInput = ref(null)
+const backgroundBusy = ref(false)
+const backgroundError = ref(null)
+
+async function changeBackground(action, fallback) {
+  if (backgroundBusy.value) return
+  backgroundBusy.value = true
+  backgroundError.value = null
+  try {
+    await action()
+  } catch (error) {
+    backgroundError.value =
+      { QUOTA_EXCEEDED: 'maps.background.errors.quota', NETWORK_ERROR: 'auth.errors.network' }[error?.code] ??
+      fallback
+  } finally {
+    backgroundBusy.value = false
+  }
+}
+
+function onBackgroundPicked(event) {
+  const [file] = event.target.files ?? []
+  // The same file can be picked again after a failure.
+  event.target.value = ''
+  if (!file) return
+  if (!file.type.startsWith('image/')) {
+    backgroundError.value = 'maps.background.errors.notImage'
+    return
+  }
+  changeBackground(() => setBackground(file), 'maps.background.errors.upload')
+}
+
+// Images already in the Catalog, as in the legacy app: shown on request.
+const pickerOpen = ref(false)
+
+function onBackgroundChosen(item) {
+  changeBackground(() => setBackgroundFromCatalog(item), 'maps.background.errors.save')
+}
+
+function onBackgroundRemove() {
+  changeBackground(removeBackground, 'maps.background.errors.save')
+}
+
+// The slider darkens the image as it moves; the value is saved when it is released.
+const dim = ref(0)
+watch(
+  () => [tree.value?.Id, tree.value?.Opacity],
+  () => {
+    dim.value = tree.value?.Opacity ?? 0
+  },
+  { immediate: true },
+)
+
+function onDimChange() {
+  changeBackground(() => setBackgroundDim(dim.value), 'maps.background.errors.save')
+}
 </script>
 
 <template>
@@ -76,6 +147,8 @@ async function onCreate() {
           class="page__canvas"
           :tree="tree"
           :selected-id="selectedId"
+          :background="backgroundUrl"
+          :dim="dim"
           @select="selectedId = $event"
         />
       </ClientOnly>
@@ -102,6 +175,57 @@ async function onCreate() {
           </form>
         </template>
         <p v-else class="muted">{{ t('maps.selectHint') }}</p>
+
+        <section class="page__background" :aria-busy="backgroundBusy">
+          <h2>{{ t('maps.background.title') }}</h2>
+          <img v-if="backgroundPreview" class="page__preview" :src="backgroundPreview" alt="" />
+          <p v-else class="muted">{{ t('maps.background.none') }}</p>
+
+          <input
+            ref="fileInput"
+            type="file"
+            accept="image/*"
+            class="page__file"
+            :aria-label="t('maps.background.choose')"
+            @change="onBackgroundPicked"
+          />
+          <div class="page__actions">
+            <UiButton variant="secondary" :disabled="backgroundBusy" @click="fileInput.click()">
+              {{
+                backgroundBusy
+                  ? t('maps.background.working')
+                  : tree.BackgroundImage
+                    ? t('maps.background.change')
+                    : t('maps.background.choose')
+              }}
+            </UiButton>
+            <UiButton
+              v-if="tree.BackgroundImage"
+              variant="ghost"
+              :disabled="backgroundBusy"
+              @click="onBackgroundRemove"
+            >
+              {{ t('maps.background.remove') }}
+            </UiButton>
+          </div>
+
+          <UiButton variant="ghost" :aria-expanded="pickerOpen" @click="pickerOpen = !pickerOpen">
+            {{ t('maps.background.fromCatalog') }}
+          </UiButton>
+          <MapBackgroundPicker
+            v-if="pickerOpen"
+            :current="tree.BackgroundImage"
+            :disabled="backgroundBusy"
+            @pick="onBackgroundChosen"
+          />
+
+          <label v-if="tree.BackgroundImage" class="page__dim">
+            <span>{{ t('maps.background.dim') }}</span>
+            <input v-model.number="dim" type="range" min="0" max="1" step="0.05" @change="onDimChange" />
+          </label>
+
+          <UiAlert v-if="backgroundError">{{ t(backgroundError) }}</UiAlert>
+        </section>
       </UiCard>
     </div>
   </div>
@@ -186,6 +310,51 @@ async function onCreate() {
   overflow-wrap: anywhere;
 }
 
+.page__background {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding-top: var(--s-6);
+  border-top: 1px solid var(--border);
+}
+
+.page__preview {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--map-preview-radius);
+  object-fit: cover;
+}
+
+/* The native file input stays out of sight: the button next to it opens it. */
+.page__file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.page__dim {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  color: var(--fg-soft);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-semibold);
+}
+
+.page__dim input {
+  width: 100%;
+  min-height: var(--tap);
+  accent-color: var(--primary);
+}
+
 .page__form {
   display: flex;
   flex-direction: column;
@@ -204,7 +373,7 @@ async function onCreate() {
 
   .page__canvas {
     flex: none;
-    height: 56dvh;
+    height: 64dvh;
   }
 
   .page__panel {

@@ -72,4 +72,29 @@ describe('maps API', () => {
     )
     expect(created).toEqual({ Id: 'k9', Text: 'Calm', ParentId: 'm1', IsRoot: false, Order: 3 })
   })
+
+  it('changes fields of an Epikey, always saying who its parent is or that it is a Map', async () => {
+    const { fetchRaw, maps } = mapsWith(
+      record({ Id: 'm1', IsRoot: true, BackgroundImage: 'i1.png', Opacity: 0.4 }),
+    )
+
+    const saved = await maps.updateKey({ Id: 'm1', IsRoot: true, Text: 'Map' }, { BackgroundImage: 'i1.png' })
+
+    expect(fetchRaw).toHaveBeenCalledWith(
+      'maps/key/save',
+      expect.objectContaining({
+        method: 'POST',
+        body: { Id: 'm1', ParentId: null, IsRoot: true, BackgroundImage: 'i1.png' },
+      }),
+    )
+    expect(saved).toEqual({ Id: 'm1', IsRoot: true, BackgroundImage: 'i1.png', Opacity: 0.4 })
+
+    await maps.updateKey({ Id: 'k1', ParentId: 'm1' }, { Text: 'New name' })
+    expect(fetchRaw.mock.calls[1][1].body).toEqual({
+      Id: 'k1',
+      ParentId: 'm1',
+      IsRoot: false,
+      Text: 'New name',
+    })
+  })
 })

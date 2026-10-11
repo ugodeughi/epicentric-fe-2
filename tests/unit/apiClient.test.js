@@ -77,3 +77,58 @@ describe('createApiClient', () => {
     await expect(bad('a', { schema })).rejects.toMatchObject({ code: INVALID_RESPONSE })
   })
 })
+
+describe('routes that answer without the envelope', () => {
+  it('returns the bare body, validated by the schema', async () => {
+    const fetchRaw = respond(200, [{ mediaItem: { Id: 'i1', Secret: 'x' } }])
+    const api = createApiClient({ baseURL, fetchRaw })
+    const schema = z.array(z.object({ mediaItem: z.object({ Id: z.string() }) }))
+
+    await expect(api('items/upload', { method: 'POST', schema, envelope: false })).resolves.toEqual([
+      { mediaItem: { Id: 'i1' } },
+    ])
+  })
+
+  it('still understands a refusal sent as an envelope', async () => {
+    const api = createApiClient({
+      baseURL,
+      fetchRaw: respond(200, { Success: false, Result: 'KO', ResultText: 'KO_MISSING_File' }),
+    })
+    await expect(api('items/upload', { envelope: false })).rejects.toMatchObject({ code: 'KO_MISSING_File' })
+  })
+
+  it('turns an error status into an ApiError: the text when there is one, else the status', async () => {
+    const withText = createApiClient({ baseURL, fetchRaw: respond(409, 'QUOTA_EXCEEDED') })
+    await expect(withText('items/upload', { envelope: false })).rejects.toMatchObject({
+      code: 'QUOTA_EXCEEDED',
+      status: 409,
+    })
+
+    const empty = createApiClient({ baseURL, fetchRaw: respond(409, undefined) })
+    await expect(empty('items/upload', { envelope: false })).rejects.toMatchObject({
+      code: 'HTTP_409',
+      status: 409,
+    })
+  })
+
+  it('reports a body that does not match the schema', async () => {
+    const api = createApiClient({ baseURL, fetchRaw: respond(200, { nope: true }) })
+    const schema = z.array(z.object({ Id: z.string() }))
+    await expect(api('items/upload', { schema, envelope: false })).rejects.toMatchObject({
+      code: INVALID_RESPONSE,
+    })
+  })
+
+  it('still drops the session on HTTP 401', async () => {
+    const onUnauthorized = vi.fn()
+    const api = createApiClient({
+      baseURL,
+      onUnauthorized,
+      fetchRaw: respond(401, { Result: 'KO', ResultText: 'KO_JWT_TOKEN_EXPIRED' }),
+    })
+    await expect(api('items/upload', { envelope: false })).rejects.toMatchObject({
+      code: 'KO_JWT_TOKEN_EXPIRED',
+    })
+    expect(onUnauthorized).toHaveBeenCalledOnce()
+  })
+})

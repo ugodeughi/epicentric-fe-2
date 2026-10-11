@@ -1,4 +1,5 @@
 import { createApiClient } from '~/services/api/client'
+import { createItemsApi } from '~/services/api/items'
 import { createMapsApi } from '~/services/api/maps'
 import { createUsersApi } from '~/services/api/users'
 
@@ -19,6 +20,7 @@ export default defineNuxtPlugin(() => {
   return {
     provide: {
       api: {
+        items: createItemsApi(client),
         maps: createMapsApi(client),
         users: createUsersApi(client),
       },

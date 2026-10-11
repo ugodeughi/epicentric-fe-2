@@ -16,10 +16,15 @@ export function createApiClient({ baseURL, getToken, onUnauthorized, fetchRaw = 
   /**
    * @template T
    * @param {string} path relative to baseURL, without leading slash
-   * @param {{ method?: string, body?: unknown, query?: Record<string, unknown>, schema?: { parse: (data: unknown) => T }, signal?: AbortSignal }} [options]
+   * @param {{ method?: string, body?: unknown, query?: Record<string, unknown>, schema?: { parse: (data: unknown) => T }, signal?: AbortSignal, envelope?: boolean }} [options]
+   *   `envelope: false` for the few routes that answer with bare JSON (file upload, bookmarks):
+   *   the body itself is returned, and an error status becomes an ApiError.
    * @returns {Promise<T>} the envelope `Data`, validated when a schema is given
    */
-  return async function api(path, { method = 'GET', body, query, schema, signal } = {}) {
+  return async function api(
+    path,
+    { method = 'GET', body, query, schema, signal, envelope: wrapped = true } = {},
+  ) {
     const token = getToken?.()
     let response
 
@@ -46,18 +51,25 @@ export function createApiClient({ baseURL, getToken, onUnauthorized, fetchRaw = 
       throw error
     }
 
-    if (!envelope || typeof envelope !== 'object') {
+    if (!wrapped) {
+      // These routes still use the envelope to refuse a request, and plain text or nothing
+      // at all with an error status.
+      const refused = envelope && typeof envelope === 'object' && envelope.Result === 'KO'
+      if (refused || status >= 400) {
+        const code = refused ? codeOf(envelope) : typeof envelope === 'string' && envelope ? envelope : null
+        throw new ApiError(code ?? `HTTP_${status}`, { status })
+      }
+    } else if (!envelope || typeof envelope !== 'object') {
       throw new ApiError(INVALID_RESPONSE, { status })
-    }
-
-    if (envelope.Result !== 'OK') {
+    } else if (envelope.Result !== 'OK') {
       throw new ApiError(codeOf(envelope) ?? INVALID_RESPONSE, { status })
     }
 
-    if (!schema) return envelope.Data
+    const data = wrapped ? envelope.Data : envelope
+    if (!schema) return data
 
     try {
-      return schema.parse(envelope.Data)
+      return schema.parse(data)
     } catch (cause) {
       throw new ApiError(INVALID_RESPONSE, { status, cause })
     }

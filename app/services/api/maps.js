@@ -33,5 +33,19 @@ export function createMapsApi(api) {
         schema: KeySchema,
       })
     },
+
+    /**
+     * Changes some fields of an Epikey. The backend refuses a save that says neither who
+     * the parent is nor that the Epikey is a Map, so both travel with every change.
+     * @param {import('~/schemas/key').Key} key the Epikey as loaded
+     * @param {Record<string, unknown>} fields backend field names
+     */
+    updateKey(key, fields) {
+      return api('maps/key/save', {
+        method: 'POST',
+        body: { Id: key.Id, ParentId: key.ParentId ?? null, IsRoot: Boolean(key.IsRoot), ...fields },
+        schema: KeySchema,
+      })
+    },
   }
 }

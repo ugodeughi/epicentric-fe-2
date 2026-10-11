@@ -15,6 +15,10 @@ export const KeySchema = z.object({
   /** Free `#RRGGBB` colour (see utils/epikeyPalette.js). */
   Color: z.string().nullish(),
   LinksCount: z.number().nullish(),
+  /** File name of the image behind the Map (a Catalog image), as the legacy frontend saves it. */
+  BackgroundImage: z.string().nullish(),
+  /** How much the background image is darkened, 0 to 1. */
+  Opacity: z.number().nullish(),
   /** Map orientation, read on the root: tree growing left to right instead of top down. */
   Horizontal: z.boolean().nullish(),
 })

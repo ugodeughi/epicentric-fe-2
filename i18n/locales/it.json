@@ -101,6 +101,33 @@
     "errors": {
       "load": "Non è stato possibile caricare la Map.",
       "create": "Non è stato possibile creare l'Epikey. Riprova."
+    },
+    "expand": "Mostra i {n} Epikey sotto {name}",
+    "collapse": "Ripiega gli Epikey sotto {name}",
+    "folded": "{n} Epikey ripiegato: aprilo dal suo +. | {n} Epikey ripiegati: aprili dal loro +.",
+    "tooBig": "Map troppo grande per questo schermo: ingrandisci per leggere i nomi.",
+    "tidy": "Rimetti gli Epikey in ordine",
+    "background": {
+      "title": "Sfondo della Map",
+      "none": "Nessuna immagine.",
+      "choose": "Carica un'immagine",
+      "change": "Cambia immagine",
+      "remove": "Togli",
+      "working": "Un momento…",
+      "dim": "Scurisci l'immagine",
+      "errors": {
+        "upload": "Non è stato possibile caricare l'immagine. Riprova.",
+        "save": "Non è stato possibile salvare lo sfondo. Riprova.",
+        "notImage": "Scegli un file immagine.",
+        "quota": "Non c'è abbastanza spazio nel tuo piano per questa immagine.",
+        "catalog": "Non è stato possibile caricare le immagini del Catalog."
+      },
+      "fromCatalog": "Scegli dal Catalog",
+      "search": "Cerca tra le immagini",
+      "loading": "Carico le immagini…",
+      "empty": "Nel Catalog non ci sono ancora immagini.",
+      "noMatch": "Nessuna immagine con questo nome.",
+      "more": "Mostra altre"
     }
   },
   "epikey": {

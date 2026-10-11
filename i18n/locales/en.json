@@ -101,6 +101,33 @@
     "errors": {
       "load": "The Map could not be loaded.",
       "create": "The Epikey could not be created. Try again."
+    },
+    "expand": "Show the {n} Epikeys under {name}",
+    "collapse": "Fold the Epikeys under {name}",
+    "folded": "{n} Epikey folded: open it from its +. | {n} Epikeys folded: open them from their +.",
+    "tooBig": "This Map is too large for this screen: zoom in to read the names.",
+    "tidy": "Put the Epikeys back in order",
+    "background": {
+      "title": "Map background",
+      "none": "No image.",
+      "choose": "Upload an image",
+      "change": "Change image",
+      "remove": "Remove",
+      "working": "One moment…",
+      "dim": "Darken the image",
+      "errors": {
+        "upload": "The image could not be uploaded. Try again.",
+        "save": "The background could not be saved. Try again.",
+        "notImage": "Choose an image file.",
+        "quota": "There is not enough space in your plan for this image.",
+        "catalog": "The images of the Catalog could not be loaded."
+      },
+      "fromCatalog": "Choose from the Catalog",
+      "search": "Search the images",
+      "loading": "Loading the images…",
+      "empty": "There are no images in the Catalog yet.",
+      "noMatch": "No image with this name.",
+      "more": "Show more"
     }
   },
   "epikey": {

@@ -255,6 +255,21 @@ export const PROGRESS_DONE = [
           'Gli Epikey sono esagoni colorati collegati al loro Epikey padre; la disposizione è calcolata in automatico, come nella versione precedente.',
       },
       {
+        title: 'Sempre tutta in vista',
+        detail:
+          'La Map si adatta allo schermo: si rimpicciolisce, si gira, impila in colonne le file lunghe e, se i nomi non si leggerebbero più, ripiega i rami più profondi, che si riaprono con un tocco.',
+      },
+      {
+        title: 'Sfondo della Map',
+        detail:
+          'Ogni Map può avere un’immagine di sfondo, come nella versione precedente: si carica o si sceglie tra le immagini già nel Catalog, si cambia, si toglie e si può scurire per far risaltare gli Epikey.',
+      },
+      {
+        title: 'Epikey spostabili',
+        detail:
+          'Trascinando un Epikey lo si sposta dove si vuole, senza muovere il resto; la posizione è ricordata sul dispositivo e un pulsante rimette tutto in ordine.',
+      },
+      {
         title: 'Esplorazione',
         detail:
           'Si trascina per spostarsi, si ingrandisce e si riduce, e un pulsante riporta in vista tutta la Map.',

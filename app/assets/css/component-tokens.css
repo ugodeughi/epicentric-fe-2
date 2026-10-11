@@ -131,6 +131,7 @@
   --map-bg: var(--inset-bg);
   --map-radius: var(--panel-radius);
   --map-dot: var(--border);
+  --map-dim: var(--bg); /* velo sopra l'immagine di sfondo */
   --map-edge: var(--fg-muted);
   --map-edge-width: 2px;
   --map-node-focus-radius: var(--r-sm);
@@ -138,4 +139,9 @@
   --map-control-fg: var(--fg);
   --map-control-hover-bg: var(--inset-bg);
   --map-control-radius: var(--r-sm);
+  --map-preview-radius: var(--r-sm);
+  --map-toggle-size: 28px;
+  --map-toggle-radius: var(--r-pill);
+  --map-toggle-bg: var(--fg);
+  --map-toggle-fg: var(--page-bg);
 }
