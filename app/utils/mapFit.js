@@ -160,6 +160,51 @@ export function visibleArea(viewport, { container, nodeWidth, nodeHeight, margin
   }
 }
 
+/**
+ * Where to put a small panel next to a node, in px from the corner of the container:
+ * beside it (to the right, or below for a Map lying on its side), on the opposite side
+ * when there is no room, and always inside the container.
+ * @param {{ x: number, y: number }} position of the node, in the Map's own coordinates
+ * @param {{ x: number, y: number, zoom: number }} viewport
+ * @param {object} options
+ * @param {{ width: number, height: number }} options.container
+ * @param {{ width: number, height: number }} options.panel
+ * @param {number} options.nodeWidth
+ * @param {number} options.nodeHeight
+ * @param {boolean} [options.below] put it below the node instead of beside it
+ * @param {number} [options.gap]
+ * @returns {{ left: number, top: number }}
+ */
+export function placeBeside(
+  position,
+  viewport,
+  { container, panel, nodeWidth, nodeHeight, below = false, gap = 8 },
+) {
+  const node = {
+    left: position.x * viewport.zoom + viewport.x,
+    top: position.y * viewport.zoom + viewport.y,
+    width: nodeWidth * viewport.zoom,
+    height: nodeHeight * viewport.zoom,
+  }
+  let left
+  let top
+
+  if (below) {
+    left = node.left + node.width / 2 - panel.width / 2
+    top = node.top + node.height + gap
+    if (top + panel.height > container.height) top = node.top - gap - panel.height
+  } else {
+    left = node.left + node.width + gap
+    top = node.top + node.height / 2 - panel.height / 2
+    if (left + panel.width > container.width) left = node.left - gap - panel.width
+  }
+
+  return {
+    left: Math.round(Math.max(gap, Math.min(container.width - panel.width - gap, left))),
+    top: Math.round(Math.max(gap, Math.min(container.height - panel.height - gap, top))),
+  }
+}
+
 /** A position pulled back inside an area (see visibleArea). */
 export function clampInto(position, area) {
   return {

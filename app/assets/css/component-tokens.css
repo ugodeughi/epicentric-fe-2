@@ -141,6 +141,10 @@
   --map-control-radius: var(--r-sm);
   --map-preview-radius: var(--r-sm);
   --map-toggle-size: 28px;
+  --map-add-size: 32px;
+  --map-add-bg: var(--primary);
+  --map-add-fg: var(--ink);
+  --map-panel-shadow: var(--card-shadow);
   --map-toggle-radius: var(--r-pill);
   --map-toggle-bg: var(--fg);
   --map-toggle-fg: var(--page-bg);

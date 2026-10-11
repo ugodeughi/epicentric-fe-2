@@ -15,6 +15,8 @@ const READABLE_LABEL_PX = 12
 const MAX_LABEL_SCALE = 1.25
 // Free space around the Map; the strip at the bottom holds the controls.
 const MARGIN = { top: 20, right: 20, bottom: 76, left: 20 }
+// Size of the panel that asks the name of a new Epikey.
+const ADD_PANEL = { width: 280, height: 132 }
 
 const props = defineProps({
   /** Map to draw: an Epikey with its subtree (schemas/key.js). */
@@ -25,6 +27,11 @@ const props = defineProps({
   background: { type: String, default: null },
   /** How much the image is darkened, 0 to 1. */
   dim: { type: Number, default: 0 },
+  /**
+   * Creates an Epikey under a parent: `({ parentId, text }) => Promise`. When given, every
+   * Epikey offers a + to add one under it.
+   */
+  create: { type: Function, default: null },
 })
 const emit = defineEmits(['select'])
 
@@ -140,6 +147,67 @@ function toggle(node) {
   closed.value = shut
 }
 
+// Quick add, as in the legacy app: the + on an Epikey asks only for a name and creates
+// the new Epikey under it. The panel is drawn over the canvas, so it does not shrink with
+// the Map.
+const adding = ref(null)
+const addName = ref('')
+const addPending = ref(false)
+const addFailed = ref(false)
+const addInput = ref(null)
+
+const addTarget = computed(() => plan.value.nodes.find((node) => node.id === adding.value) ?? null)
+const addStyle = computed(() => {
+  if (!addTarget.value) return null
+  const { left, top } = placeBeside(addTarget.value.position, viewport.value, {
+    container: size.value,
+    panel: ADD_PANEL,
+    nodeWidth: NODE_WIDTH,
+    nodeHeight: NODE_HEIGHT,
+    below: plan.value.horizontal,
+  })
+  return { left: `${left}px`, top: `${top}px`, width: `${ADD_PANEL.width}px` }
+})
+
+function openAdd(node) {
+  adding.value = node.id
+  addName.value = ''
+  addFailed.value = false
+  emit('select', node.id)
+  nextTick(() => addInput.value?.focus())
+}
+
+function closeAdd() {
+  const id = adding.value
+  adding.value = null
+  // Back to where the keyboard was.
+  nextTick(() => container.value?.querySelector(`[data-add="${CSS.escape(id ?? '')}"]`)?.focus())
+}
+
+async function submitAdd() {
+  const text = addName.value.trim()
+  if (!text || addPending.value || !adding.value) return
+  addPending.value = true
+  addFailed.value = false
+  try {
+    const parentId = adding.value
+    await props.create({ parentId, text })
+    // The new Epikey must be on show: its parent is opened like any branch the user opens.
+    opened.value = new Set(opened.value).add(parentId)
+    closed.value = new Set([...closed.value].filter((id) => id !== parentId))
+    closeAdd()
+  } catch {
+    addFailed.value = true
+  } finally {
+    addPending.value = false
+  }
+}
+
+// The panel belongs to an Epikey on show: it goes away with it, or with the Map.
+watch(addTarget, (target) => {
+  if (!target) adding.value = null
+})
+
 const reducedMotion = import.meta.client && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const paneReady = ref(false)
 
@@ -234,6 +302,23 @@ const labelScale = computed(() =>
           <template v-if="node.data.collapsed">+{{ node.data.hiddenCount }}</template>
           <UiIcon v-else name="minus" :size="16" />
         </button>
+        <button
+          v-if="create"
+          type="button"
+          class="map__add nodrag"
+          :class="[
+            `map__add--${node.sourcePosition}`,
+            { 'map__add--on': node.id === selectedId || node.id === adding },
+          ]"
+          :style="{ '--_scale': labelScale }"
+          :data-add="node.id"
+          :aria-label="t('maps.add.open', { name: node.data.key.Text })"
+          :title="t('maps.add.open', { name: node.data.key.Text })"
+          :aria-expanded="node.id === adding"
+          @click="node.id === adding ? closeAdd() : openAdd(node)"
+        >
+          <UiIcon name="plus" :size="18" />
+        </button>
         <Handle type="source" :position="node.sourcePosition" class="map__handle" />
       </template>
 
@@ -263,6 +348,38 @@ const labelScale = computed(() =>
         {{ plan.readable ? t('maps.folded', plan.hidden) : t('maps.tooBig') }}
       </Panel>
     </VueFlow>
+
+    <form
+      v-if="addTarget"
+      class="map__adding"
+      :style="addStyle"
+      role="dialog"
+      :aria-label="t('maps.add.title')"
+      @submit.prevent="submitAdd"
+      @keydown.esc.prevent="closeAdd"
+    >
+      <label class="map__adding-label" :for="`${FLOW_ID}-add`">
+        {{ t('maps.add.under', { name: addTarget.data.key.Text }) }}
+      </label>
+      <input
+        :id="`${FLOW_ID}-add`"
+        ref="addInput"
+        v-model="addName"
+        class="map__adding-input"
+        type="text"
+        autocomplete="off"
+        maxlength="120"
+        :placeholder="t('maps.add.placeholder')"
+        :aria-invalid="addFailed"
+      />
+      <p v-if="addFailed" class="map__adding-error" role="alert">{{ t('maps.errors.create') }}</p>
+      <div class="map__adding-actions">
+        <UiButton variant="ghost" @click="closeAdd">{{ t('maps.add.cancel') }}</UiButton>
+        <UiButton type="submit" :disabled="addPending || !addName.trim()">
+          {{ addPending ? t('maps.newKey.submitting') : t('maps.add.submit') }}
+        </UiButton>
+      </div>
+    </form>
   </div>
 </template>
 
@@ -332,6 +449,100 @@ const labelScale = computed(() =>
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
   border-radius: var(--map-node-focus-radius);
+}
+
+/* Adds an Epikey under a node. Shown on the selected Epikey and on the one under the
+   pointer or the keyboard, so the Map is not covered in buttons. */
+.map__add {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--map-add-size);
+  height: var(--map-add-size);
+  padding: 0;
+  border: 0;
+  border-radius: var(--map-toggle-radius);
+  background: var(--map-add-bg);
+  color: var(--map-add-fg);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: all;
+  transition: opacity var(--motion);
+}
+
+.map__add--on,
+.map__add:focus-visible,
+.map :deep(.vue-flow__node:hover) .map__add,
+.map :deep(.vue-flow__node:focus-within) .map__add {
+  opacity: 1;
+}
+
+/* Beside the Epikey, away from where its children hang. */
+.map__add--bottom {
+  top: 50%;
+  right: 0;
+  transform: translate(25%, -50%) scale(var(--_scale));
+}
+
+.map__add--right {
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 25%) scale(var(--_scale));
+}
+
+.map__add:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Asks the name of the new Epikey; drawn over the canvas, at its real size. */
+.map__adding {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-3);
+  border-radius: var(--map-control-radius);
+  background: var(--map-control-bg);
+  box-shadow: var(--map-panel-shadow);
+  color: var(--fg);
+}
+
+.map__adding-label {
+  overflow: hidden;
+  color: var(--fg-soft);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map__adding-input {
+  min-height: var(--tap);
+  padding: 0 var(--s-3);
+  border: 1px solid var(--field-border);
+  border-radius: var(--field-radius);
+  background: var(--field-bg);
+  color: var(--field-fg);
+  font: inherit;
+}
+
+.map__adding-input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.map__adding-error {
+  color: var(--accent-text);
+  font-size: var(--fs-small);
+}
+
+.map__adding-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-2);
 }
 
 /* Opens or folds the Epikeys under a node; sits where the lines leave it. */

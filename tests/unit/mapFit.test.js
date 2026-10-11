@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
-import { clampInto, fitViewport, planMap, visibleArea } from '../../app/utils/mapFit'
+import { clampInto, fitViewport, placeBeside, planMap, visibleArea } from '../../app/utils/mapFit'
 
 const node = { nodeWidth: 100, nodeHeight: 100 }
 
@@ -263,5 +263,42 @@ describe('visibleArea and clampInto', () => {
     expect(clampInto({ x: 250, y: 100 }, area)).toEqual({ x: 250, y: 100 })
     expect(clampInto({ x: -40, y: 900 }, area)).toEqual({ x: 0, y: 300 })
     expect(clampInto({ x: 640, y: -5 }, area)).toEqual({ x: 500, y: 0 })
+  })
+})
+
+describe('placeBeside', () => {
+  const options = { ...node, container: { width: 800, height: 600 }, panel: { width: 200, height: 100 } }
+  const still = { x: 0, y: 0, zoom: 1 }
+
+  it('puts the panel to the right of the node, level with its middle', () => {
+    expect(placeBeside({ x: 100, y: 200 }, still, options)).toEqual({ left: 208, top: 200 })
+  })
+
+  it('follows the pan and zoom of the Map', () => {
+    // The node is drawn at (150, 250), 50 px wide and tall.
+    expect(placeBeside({ x: 100, y: 200 }, { x: 100, y: 150, zoom: 0.5 }, options)).toEqual({
+      left: 208,
+      top: 225,
+    })
+  })
+
+  it('goes to the left when there is no room on the right', () => {
+    expect(placeBeside({ x: 650, y: 200 }, still, options)).toEqual({ left: 442, top: 200 })
+  })
+
+  it('goes below the node for a Map lying on its side, or above when there is no room', () => {
+    expect(placeBeside({ x: 300, y: 100 }, still, { ...options, below: true })).toEqual({
+      left: 250,
+      top: 208,
+    })
+    expect(placeBeside({ x: 300, y: 450 }, still, { ...options, below: true })).toEqual({
+      left: 250,
+      top: 342,
+    })
+  })
+
+  it('never leaves the container', () => {
+    expect(placeBeside({ x: -400, y: -400 }, still, options)).toEqual({ left: 8, top: 8 })
+    expect(placeBeside({ x: 2000, y: 2000 }, still, options)).toEqual({ left: 592, top: 492 })
   })
 })

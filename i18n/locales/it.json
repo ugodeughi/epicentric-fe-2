@@ -128,6 +128,14 @@
       "empty": "Nel Catalog non ci sono ancora immagini.",
       "noMatch": "Nessuna immagine con questo nome.",
       "more": "Mostra altre"
+    },
+    "add": {
+      "open": "Aggiungi un Epikey sotto {name}",
+      "title": "Nuovo Epikey",
+      "under": "Nuovo Epikey sotto {name}",
+      "placeholder": "Nome",
+      "submit": "Crea",
+      "cancel": "Annulla"
     }
   },
   "epikey": {

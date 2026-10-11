@@ -1,7 +1,7 @@
 // Content of the provisional /progress page. Italian only on purpose: the page is a
 // temporary status report for the project team, not part of the product (see CLAUDE.md).
 
-export const PROGRESS_UPDATED = '7 ottobre 2026'
+export const PROGRESS_UPDATED = '11 ottobre 2026'
 
 /** @type {{ title: string, intro?: string, items: { title: string, detail: string }[] }[]} */
 export const PROGRESS_DONE = [
@@ -25,7 +25,8 @@ export const PROGRESS_DONE = [
       },
       {
         title: 'Indirizzi della versione precedente',
-        detail: 'I vecchi percorsi e quelli contenuti nelle email reindirizzano alle nuove pagine.',
+        detail:
+          'I vecchi percorsi, quelli contenuti nelle email e i vecchi link di invito reindirizzano alle nuove pagine.',
       },
     ],
   },
@@ -92,7 +93,8 @@ export const PROGRESS_DONE = [
     items: [
       {
         title: 'Barra laterale su desktop',
-        detail: 'Logo, navigazione tra Catalog ed Epikey, utente collegato e uscita.',
+        detail:
+          'Logo, navigazione tra Epikey e Catalog, utente collegato e uscita. Dopo l’accesso l’app si apre sugli Epikey.',
       },
       {
         title: 'Barra in basso su telefono',
@@ -232,8 +234,9 @@ export const PROGRESS_DONE = [
     title: 'Qualità e pubblicazione',
     items: [
       {
-        title: '26 test automatici sulla logica',
-        detail: 'Client API, chiamate utente, calcolo dell’età, coerenza dei temi, componenti.',
+        title: '108 test automatici sulla logica',
+        detail:
+          'Client API, chiamate utente, calcolo dell’età, coerenza dei temi, componenti, disposizione e adattamento della Map, sfondi, colori degli Epikey.',
       },
       {
         title: '10 test automatici nel browser',
@@ -246,8 +249,34 @@ export const PROGRESS_DONE = [
     ],
   },
   {
+    title: 'Analisi della versione precedente',
+    intro: 'Il lavoro di studio fatto prima di sviluppare le funzioni dell’app.',
+    items: [
+      {
+        title: 'Inventario delle funzioni',
+        detail:
+          'Ogni funzione della versione precedente è stata classificata: quali restano, quali cambiano forma, quali sono rinviate e quali si lasciano.',
+      },
+      {
+        title: 'Mappa dei collegamenti con il backend',
+        detail:
+          'Per ogni operazione dell’app è descritto che cosa si chiede al backend e che cosa risponde, verificato sul backend reale.',
+      },
+      {
+        title: 'Flussi d’uso',
+        detail:
+          'Descritti passo per passo l’accesso, l’aggiunta di contenuti, il Catalog, la creazione dei Link, gli Epikey e la riproduzione.',
+      },
+      {
+        title: 'Verifica dell’accesso',
+        detail:
+          'Login, registrazione, conferma dell’email e recupero della password sono stati ricontrollati uno per uno rispetto al backend.',
+      },
+    ],
+  },
+  {
     title: 'Map degli Epikey',
-    intro: 'La pagina Epikey mostra la Map come un albero che si può esplorare.',
+    intro: 'La pagina Epikey mostra la Map come un albero che si esplora e si costruisce.',
     items: [
       {
         title: 'Map ad albero',
@@ -260,9 +289,18 @@ export const PROGRESS_DONE = [
           'La Map si adatta allo schermo: si rimpicciolisce, si gira, impila in colonne le file lunghe e, se i nomi non si leggerebbero più, ripiega i rami più profondi, che si riaprono con un tocco.',
       },
       {
-        title: 'Sfondo della Map',
+        title: 'Esplorazione',
         detail:
-          'Ogni Map può avere un’immagine di sfondo, come nella versione precedente: si carica o si sceglie tra le immagini già nel Catalog, si cambia, si toglie e si può scurire per far risaltare gli Epikey.',
+          'Si trascina lo sfondo per spostarsi, si ingrandisce e si riduce, e un pulsante riporta in vista tutta la Map.',
+      },
+      {
+        title: 'Nuovo Epikey dal +',
+        detail:
+          'Come nella versione precedente, dal + che compare su un Epikey se ne aggiunge uno sotto scrivendo solo il nome.',
+      },
+      {
+        title: 'Nuovo Epikey con colore',
+        detail: 'Dal pannello a lato si aggiunge un Epikey scegliendo anche il colore tra dieci.',
       },
       {
         title: 'Epikey spostabili',
@@ -270,13 +308,14 @@ export const PROGRESS_DONE = [
           'Trascinando un Epikey lo si sposta dove si vuole, senza muovere il resto; la posizione è ricordata sul dispositivo e un pulsante rimette tutto in ordine.',
       },
       {
-        title: 'Esplorazione',
+        title: 'Sfondo della Map',
         detail:
-          'Si trascina per spostarsi, si ingrandisce e si riduce, e un pulsante riporta in vista tutta la Map.',
+          'Ogni Map può avere un’immagine di sfondo, come nella versione precedente: si carica dal dispositivo, si cambia, si toglie e si può scurire per far risaltare gli Epikey.',
       },
       {
-        title: 'Nuovo Epikey',
-        detail: 'Si seleziona un Epikey e se ne aggiunge uno sotto, con nome e colore scelto tra dieci.',
+        title: 'Sfondo dal Catalog',
+        detail:
+          'Lo sfondo si può anche scegliere tra le immagini già nel Catalog, con le miniature e la ricerca per nome.',
       },
       {
         title: 'Più Map',
@@ -308,7 +347,8 @@ export const PROGRESS_NEXT = [
     items: [
       'Catalog: elenchi, filtri, miniature, dettaglio e visualizzatori dei contenuti',
       'Acquisizione: caricamento di più file, download dal web, video incorporati, bookmark',
-      'Epikey: pagina del singolo Epikey, rinomina, spostamento, riordino, cancellazione, nuova Map, modelli',
+      'Epikey: pagina del singolo Epikey, rinomina, cambio di padre, riordino, cancellazione, nuova Map, modelli',
+      'Map: posizioni degli Epikey salvate nell’account invece che sul dispositivo, sfondo per singolo Epikey',
       'Link: collegamento tra contenuti ed Epikey, riproduzione da Link, Freeze',
       'Player: playlist generate dal backend, versioni desktop e mobile, forma d’onda',
       'Impostazioni del Playlist Engine e personalizzazione (volume, equalizzatore, ritaglio)',

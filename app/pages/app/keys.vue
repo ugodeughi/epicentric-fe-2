@@ -149,6 +149,7 @@ function onDimChange() {
           :selected-id="selectedId"
           :background="backgroundUrl"
           :dim="dim"
+          :create="createKey"
           @select="selectedId = $event"
         />
       </ClientOnly>
