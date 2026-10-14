@@ -31,7 +31,7 @@ export function useCatalogImages() {
       if (current !== request) return
 
       // The Visual section also holds videos and embeds: only images can be shown as one.
-      const found = result.items.filter((item) => item.MediaSubType === 0 && item.FileName)
+      const found = result.items.filter(isImage)
       page = reset ? 0 : page + 1
       images.value = reset ? found : [...images.value, ...found]
       more.value = result.more

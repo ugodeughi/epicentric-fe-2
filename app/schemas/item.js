@@ -15,6 +15,16 @@ export const ItemSchema = z.object({
   /** For MediaType 1: 0 Image, 1 Video, 2 Embed. */
   MediaSubType: z.number().nullish(),
   ImportDate: z.string().nullish(),
+  /** Without the dot, upper or lower case as the backend saved it: `MP3`, `jpeg`. */
+  FileExtension: z.string().nullish(),
+  Title: z.string().nullish(),
+  Artist: z.string().nullish(),
+  Collection: z.string().nullish(),
+  /** Seconds, for audio and video. */
+  Duration: z.number().nullish(),
+  LinksCount: z.number().nullish(),
+  /** Frozen contents are left out of the playlists. */
+  IsFreezed: z.boolean().nullish(),
 })
 
 /** One uploaded file, as answered by `items/upload`. */

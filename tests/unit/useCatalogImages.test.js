@@ -5,7 +5,7 @@ import { useCatalogImages } from '../../app/composables/useCatalogImages'
 const api = vi.hoisted(() => ({ items: { load: vi.fn() } }))
 mockNuxtImport('useApi', () => () => api)
 
-const image = (Id) => ({ Id, ItemName: `${Id}.jpg`, FileName: `${Id}.jpg`, MediaSubType: 0 })
+const image = (Id) => ({ Id, ItemName: `${Id}.jpg`, FileName: `${Id}.jpg`, MediaType: 1, MediaSubType: 0 })
 
 beforeEach(() => vi.clearAllMocks())
 
@@ -14,9 +14,9 @@ describe('useCatalogImages', () => {
     api.items.load.mockResolvedValue({
       items: [
         image('a'),
-        { Id: 'v', FileName: 'v.mp4', MediaSubType: 1 },
-        { Id: 'e', MediaSubType: 2 },
-        { Id: 'n', MediaSubType: 0 },
+        { Id: 'v', FileName: 'v.mp4', MediaType: 1, MediaSubType: 1 },
+        { Id: 'e', MediaType: 1, MediaSubType: 2 },
+        { Id: 'n', MediaType: 1, MediaSubType: 0 },
       ],
       more: true,
     })

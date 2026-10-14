@@ -104,3 +104,18 @@ describe('items API: load', () => {
     })
   })
 })
+
+describe('items API: save', () => {
+  it('changes fields of a content and returns it as saved', async () => {
+    const { fetchRaw, items } = itemsWith(200, {
+      Result: 'OK',
+      Data: [record({ Id: 'i1', IsFreezed: true })],
+    })
+
+    await expect(items.save('i1', { IsFreezed: true })).resolves.toEqual({ Id: 'i1', IsFreezed: true })
+    expect(fetchRaw).toHaveBeenCalledWith(
+      'items/save',
+      expect.objectContaining({ method: 'POST', body: { Item: { Id: 'i1', IsFreezed: true } } }),
+    )
+  })
+})

@@ -1,4 +1,5 @@
-import { ItemsPageSchema, UploadedSchema } from '~/schemas/item'
+import { z } from 'zod'
+import { ItemSchema, ItemsPageSchema, UploadedSchema } from '~/schemas/item'
 import { ApiError } from './errors'
 
 /** The file is already in the user's Catalog (same content). */
@@ -55,6 +56,21 @@ export function createItemsApi(api) {
       })
       const items = data.Items.flatMap((group) => group.Items ?? [])
       return { items, count: data.Count ?? items.length, more: Boolean(data.More) }
+    },
+
+    /**
+     * Changes some fields of a content.
+     * @param {string} id
+     * @param {Record<string, unknown>} fields backend field names, e.g. `{ IsFreezed: true }`
+     * @returns {Promise<import('~/schemas/item').Item>}
+     */
+    async save(id, fields) {
+      const [saved] = await api('items/save', {
+        method: 'POST',
+        body: { Item: { Id: id, ...fields } },
+        schema: z.array(ItemSchema).min(1),
+      })
+      return saved
     },
   }
 }
