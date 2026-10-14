@@ -76,9 +76,63 @@
     }
   },
   "catalog": {
-    "all": "All",
     "sections": "Catalog sections",
-    "empty": "Your contents will appear here."
+    "search": "Search the Catalog",
+    "searchPlaceholder": "Search titles, artists, file names…",
+    "total": "No contents | {n} content | {n} contents",
+    "results": "No results | {n} result | {n} results",
+    "loading": "Loading…",
+    "more": "Show more",
+    "kinds": {
+      "audio": "Audio",
+      "image": "Image",
+      "video": "Video",
+      "embed": "Embedded video",
+      "file": "File",
+      "bookmark": "Bookmark"
+    },
+    "linksCount": "{n} Link | {n} Links",
+    "noLinks": "No Links",
+    "freeze": "Freeze {name}: it stays out of the playlists",
+    "unfreeze": "Unfreeze {name}",
+    "freezeShort": "Freeze",
+    "unfreezeShort": "Unfreeze",
+    "frozen": "“{name}” is Frozen: it stays out of the playlists.",
+    "unfrozen": "“{name}” is back in the playlists.",
+    "filters": {
+      "noLinks": "No Links",
+      "partial": "The filter applies to the contents loaded so far: scroll to see more."
+    },
+    "sort": {
+      "label": "Sort",
+      "recent": "Newest",
+      "oldest": "Oldest",
+      "name": "Name (A-Z)"
+    },
+    "empty": {
+      "audio": "No audio yet. Upload songs, podcasts or recordings from your device.",
+      "visual": "No images or videos yet. Upload photos and videos from your device.",
+      "files": "No files yet. Upload PDFs and documents from your device.",
+      "bookmarks": "No bookmarks yet. You will be able to save web pages once adding from a URL arrives.",
+      "search": "No content matches “{q}”.",
+      "filtered": "None of the loaded contents match the filters."
+    },
+    "upload": {
+      "label": "Upload",
+      "first": "Upload from your device",
+      "working": "Uploading…",
+      "done": "No contents uploaded | {n} content uploaded. | {n} contents uploaded.",
+      "quota": "There is not enough space in your plan for “{name}”.",
+      "duplicated": "“{name}” is already in the Catalog.",
+      "network": "No connection: “{name}” was not uploaded.",
+      "failed": "“{name}” could not be uploaded."
+    },
+    "errors": {
+      "load": "The Catalog could not be loaded.",
+      "freeze": "The Freeze could not be changed. Try again."
+    },
+    "play": "Play {name}",
+    "pause": "Pause {name}"
   },
   "maps": {
     "canvasLabel": "Map of Epikeys",
@@ -93,7 +147,7 @@
     "newKey": {
       "title": "New Epikey",
       "under": "Under {parent}",
-      "name": "Name",
+      "name": "Name of the new Epikey",
       "color": "Colour",
       "submit": "Add Epikey",
       "submitting": "Adding…"
@@ -127,7 +181,8 @@
       "loading": "Loading the images…",
       "empty": "There are no images in the Catalog yet.",
       "noMatch": "No image with this name.",
-      "more": "Show more"
+      "more": "Show more",
+      "missing": "The chosen image is not available: upload another one or choose one from the Catalog."
     },
     "add": {
       "open": "Add an Epikey under {name}",
@@ -136,6 +191,74 @@
       "placeholder": "Name",
       "submit": "Create",
       "cancel": "Cancel"
+    },
+    "cancel": "Cancel",
+    "working": "One moment…",
+    "newMap": {
+      "open": "New Map",
+      "title": "New Map",
+      "how": "How do you want to start",
+      "empty": "Empty",
+      "fromTemplate": "From a template",
+      "name": "Map name",
+      "templateHint": "The new Map gets the same Epikeys as the template; you can rename, move or delete them.",
+      "submit": "Create the Map",
+      "done": "Map “{name}” created.",
+      "error": "The Map could not be created. Try again."
+    },
+    "templates": {
+      "loading": "Loading the templates…",
+      "error": "The templates could not be loaded.",
+      "none": "There are no templates yet.",
+      "count": "no Epikeys | {n} Epikey | {n} Epikeys"
+    },
+    "empty": {
+      "title": "This Map is empty",
+      "text": "Start from a ready-made template, with Epikeys for music, audio, images and guided sessions, or create your first Epikey.",
+      "template": "Start from a template",
+      "first": "Create the first Epikey"
+    },
+    "fill": {
+      "title": "Start from a template",
+      "hint": "The template’s Epikeys are added to “{map}”. You can rename, move or delete them.",
+      "submit": "Add the Epikeys",
+      "done": "Epikeys of “{name}” added.",
+      "error": "Not all the template’s Epikeys could be added. Try again."
+    },
+    "edit": {
+      "name": "Name",
+      "rename": "Save the name",
+      "renamed": "Name saved.",
+      "color": "Colour",
+      "earlier": "Move earlier",
+      "later": "Move later",
+      "move": "Move to…",
+      "moveTitle": "Move “{name}”",
+      "moveUnder": "Put it under",
+      "moveSubmit": "Move here",
+      "nowhere": "There is no other Epikey to move it to.",
+      "moved": "“{name}” is now under “{parent}”.",
+      "delete": "Delete",
+      "deleteMap": "Delete the Map",
+      "deleteTitle": "Delete “{name}”?",
+      "deleteMapTitle": "Delete the Map “{name}”?",
+      "loses": "With it go {what}.",
+      "losesNothing": "It holds no other Epikeys or Links.",
+      "keysCount": "no Epikeys | {n} Epikey | {n} Epikeys",
+      "contentsStay": "The contents stay in the Catalog.",
+      "deleteConfirm": "Delete",
+      "deleted": "“{name}” deleted.",
+      "mapDeleted": "Map “{name}” deleted.",
+      "errors": {
+        "rename": "The name could not be saved. Try again.",
+        "color": "The colour could not be saved. Try again.",
+        "order": "The order could not be changed. Try again.",
+        "move": "The Epikey could not be moved. Try again.",
+        "delete": "It could not be deleted. Try again."
+      },
+      "and": " and ",
+      "earlierNamed": "Move {name} earlier",
+      "laterNamed": "Move {name} later"
     }
   },
   "epikey": {
@@ -155,5 +278,18 @@
   "ui": {
     "showPassword": "Show password",
     "hidePassword": "Hide password"
+  },
+  "dialog": {
+    "close": "Close"
+  },
+  "player": {
+    "label": "Player",
+    "loading": "Getting ready…",
+    "play": "Play",
+    "pause": "Pause",
+    "next": "Next track",
+    "previous": "Previous track",
+    "close": "Close the player",
+    "error": "“{name}” could not be played."
   }
 }

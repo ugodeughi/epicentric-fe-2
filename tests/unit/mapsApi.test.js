@@ -97,4 +97,63 @@ describe('maps API', () => {
       Text: 'New name',
     })
   })
+
+  it('creates an empty Map as a root Epikey', async () => {
+    const { fetchRaw, maps } = mapsWith(record({ Id: 'm9', Text: 'Travels', IsRoot: true, ParentId: null }))
+
+    await expect(maps.createMap({ text: ' Travels ', order: 4 })).resolves.toMatchObject({ Id: 'm9' })
+    expect(fetchRaw).toHaveBeenCalledWith(
+      'maps/key/save',
+      expect.objectContaining({ body: { Text: 'Travels', ParentId: null, IsRoot: true, Order: 4 } }),
+    )
+  })
+
+  it('deletes, moves and orders Epikeys with the bodies the backend reads', async () => {
+    const { fetchRaw, maps } = mapsWith({ Result: true })
+
+    await maps.deleteKey('k 1')
+    await maps.moveKey('k1', 'k2')
+    await maps.setOrder(['k3', 'k1'])
+
+    expect(fetchRaw.mock.calls.map(([path, options]) => [path, options.method, options.body])).toEqual([
+      ['maps/key/k%201/delete', 'DELETE', undefined],
+      ['maps/key/move', 'POST', { Item: { SourceId: 'k1', DestinationId: 'k2' } }],
+      ['maps/key/setorder', 'POST', { Items: ['k3', 'k1'] }],
+    ])
+  })
+
+  it('lists the templates with their Maps, ignoring the fields the app does not read', async () => {
+    const { maps } = mapsWith([
+      {
+        Id: 't1',
+        Name: 'AUDIO Templates',
+        Description: '<p>Audio</p>',
+        BackgroundImage: 'audio.jpg',
+        Maps: [
+          record({ Id: 'tm1', Text: 'MY AUDIO LIBRARY', Children: [record({ Id: 'tk1', Text: 'Stories' })] }),
+        ],
+      },
+    ])
+
+    await expect(maps.templates()).resolves.toEqual([
+      {
+        Id: 't1',
+        Name: 'AUDIO Templates',
+        Description: '<p>Audio</p>',
+        Maps: [{ Id: 'tm1', Text: 'MY AUDIO LIBRARY', Children: [{ Id: 'tk1', Text: 'Stories' }] }],
+      },
+    ])
+  })
+
+  it('copies a template Map without its Links, or a template Epikey under a parent', async () => {
+    const { fetchRaw, maps } = mapsWith(record({ Id: 'new', Text: 'Copy', IsRoot: true }))
+
+    await maps.importTemplate('tm1')
+    await maps.addTemplateKey({ parentId: 'm1', templateKeyId: 'tk1' })
+
+    expect(fetchRaw.mock.calls.map(([path, options]) => [path, options.body])).toEqual([
+      ['maps/templates/import', { Item: { Id: 'tm1' }, ImportMedia: false }],
+      ['maps/key/template/add', { ParentId: 'm1', Item: 'tk1' }],
+    ])
+  })
 })

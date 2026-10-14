@@ -52,6 +52,133 @@ export function useMaps() {
     return created
   }
 
+  /**
+   * Renames an Epikey of the open Map (or the Map itself).
+   * @param {string} keyId
+   * @param {string} text
+   */
+  async function renameKey(keyId, text) {
+    const key = findKey(tree.value, keyId)
+    const saved = await api.maps.updateKey(key, { Text: text.trim() })
+    applyFields(keyId, { Text: saved.Text ?? text.trim() })
+  }
+
+  /**
+   * Changes the colour of an Epikey. The backend passes it on to the Epikeys under it that
+   * have no colour of their own, so the Map is reloaded.
+   * @param {string} keyId
+   * @param {string} color palette id
+   */
+  async function setKeyColor(keyId, color) {
+    const key = findKey(tree.value, keyId)
+    await api.maps.updateKey(key, { Color: epikeyColorHex(color), ColorChanged: true })
+    await refresh()
+  }
+
+  /**
+   * Moves an Epikey, with everything under it, to the end of another parent's children.
+   * @param {string} keyId
+   * @param {string} parentId
+   */
+  async function moveKey(keyId, parentId) {
+    const parent = findKey(tree.value, parentId)
+    await api.maps.moveKey(keyId, parentId)
+    const siblings = (parent?.Children ?? []).map((key) => key.Id).filter((id) => id !== keyId)
+    await api.maps.setOrder([...siblings, keyId])
+    await refresh()
+  }
+
+  /**
+   * Moves an Epikey one place earlier (-1) or later (+1) among its siblings. The Map
+   * changes at once and goes back if the backend refuses.
+   * @param {string} keyId
+   * @param {number} step
+   * @returns {Promise<boolean>} false when it is already first or last
+   */
+  async function shiftKey(keyId, step) {
+    const ids = shiftedSiblings(tree.value, keyId, step)
+    if (!ids) return false
+    const parentId = findParent(tree.value, keyId).Id
+    const before = tree.value
+    tree.value = withChildOrder(tree.value, parentId, ids)
+    try {
+      await api.maps.setOrder(ids)
+    } catch (error) {
+      // Undo only the reordering: other changes may have arrived meanwhile.
+      if (tree.value?.Id === before.Id)
+        tree.value = withChildOrder(tree.value, parentId, siblingIds(before, parentId))
+      throw error
+    }
+    return true
+  }
+
+  /**
+   * Deletes an Epikey of the open Map with everything under it, or the Map itself.
+   * A deleted Map stays drawn until another one is opened with `open`.
+   * @param {string} keyId
+   */
+  async function deleteKey(keyId) {
+    await api.maps.deleteKey(keyId)
+    if (keyId === tree.value?.Id) {
+      maps.value = maps.value.filter((map) => map.Id !== keyId)
+    } else {
+      await refresh()
+    }
+  }
+
+  /**
+   * Creates an empty Map, last in the list.
+   * @param {string} text
+   * @returns {Promise<import('~/schemas/key').Key>}
+   */
+  async function createMap(text) {
+    const created = await api.maps.createMap({ text, order: maps.value.length + 1 })
+    maps.value = [...maps.value, created]
+    return created
+  }
+
+  /** Ready-made Maps, loaded once. */
+  const templates = useState('maps:templates', () => null)
+
+  async function loadTemplates() {
+    if (!templates.value) templates.value = await api.maps.templates()
+    return templates.value
+  }
+
+  /**
+   * Creates a new Map as a copy of a template Map.
+   * @param {string} templateMapId
+   * @returns {Promise<import('~/schemas/key').Key>}
+   */
+  async function importTemplate(templateMapId) {
+    const created = await api.maps.importTemplate(templateMapId)
+    maps.value = [...maps.value, created]
+    return created
+  }
+
+  /**
+   * Fills the open Map with the Epikeys of a template Map, in their order.
+   * @param {import('~/schemas/key').KeyTree} templateMap
+   */
+  async function fillFromTemplate(templateMap) {
+    const parentId = tree.value.Id
+    try {
+      for (const child of templateMap.Children ?? []) {
+        await api.maps.addTemplateKey({ parentId, templateKeyId: child.Id })
+      }
+    } finally {
+      // Whatever was added before a failure is shown.
+      await refresh()
+    }
+  }
+
+  /** Puts saved fields on an Epikey of the open Map, and on the list entry when it is a Map. */
+  function applyFields(keyId, fields) {
+    if (!tree.value) return
+    tree.value = withKeyFields(tree.value, keyId, fields)
+    maps.value = maps.value.map((map) => (map.Id === keyId ? { ...map, ...fields } : map))
+  }
+
   /** Applies saved fields to the open Map and to its entry in the list. */
   function patchMap(fields) {
     tree.value = { ...tree.value, ...fields }
@@ -117,12 +244,26 @@ export function useMaps() {
     maps,
     tree,
     status,
+    templates,
     open,
     refresh,
     createKey,
+    renameKey,
+    setKeyColor,
+    moveKey,
+    shiftKey,
+    deleteKey,
+    createMap,
+    loadTemplates,
+    importTemplate,
+    fillFromTemplate,
     setBackground,
     setBackgroundFromCatalog,
     removeBackground,
     setBackgroundDim,
   }
+}
+
+function siblingIds(root, parentId) {
+  return (findKey(root, parentId)?.Children ?? []).map((key) => key.Id)
 }

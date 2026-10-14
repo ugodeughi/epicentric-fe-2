@@ -91,7 +91,7 @@ Le impostazioni del Link non fanno parte della creazione: si regolano dopo, dal 
 1. `GET maps/load`, poi `GET maps/key/:id/loadrecursive` per la Map aperta. L'ultima Map aperta si ricorda sul dispositivo.
 2. Albero con colore, nome e numero di Link per ogni Epikey. Le Map sono le radici; il cambio di Map è in testa all'albero.
 3. Azione primaria: **Nuovo Epikey** (dialogo: nome, colore dalla palette, padre). Secondaria: Nuova Map (vuota o da template).
-4. Sulla riga: Play, menu (rinomina, sposta in…, cancella). Riordino tra fratelli per trascinamento (`POST maps/key/setorder`).
+4. Sulla riga: Play, menu (rinomina, sposta in…, cancella). Riordino tra fratelli con le frecce sull'Epikey selezionato, accanto al `+` (`POST maps/key/setorder`): sul canvas il trascinamento sposta solo il disegno.
 
 ### Pagina dell'Epikey — `/app/keys/:keyId`
 

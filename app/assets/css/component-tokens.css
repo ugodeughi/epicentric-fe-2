@@ -87,6 +87,49 @@
   --alert-fg: var(--fg);
   --alert-mark: var(--accent-text);
 
+  /* Dialog */
+  --dialog-bg: var(--card-bg);
+  --dialog-radius: var(--card-radius);
+  --dialog-shadow: var(--shadow-float);
+  --dialog-backdrop: var(--bg-backdrop);
+
+  /* Toast */
+  --toast-bg: var(--fg);
+  --toast-fg: var(--page-bg);
+  --toast-radius: var(--r-sm);
+  --toast-shadow: var(--shadow-float);
+  --toast-mark: var(--primary);
+  --toast-error-mark: var(--epikey-pink);
+
+  /* Catalog */
+  --content-card-bg: var(--card-bg);
+  --content-card-radius: var(--card-radius);
+  --content-card-selected: var(--primary);
+  --content-thumb-radius: var(--r-sm);
+  --content-thumb-bg: var(--inset-bg);
+  --content-thumb-fg: var(--fg-soft);
+  --content-audio: var(--level-link);
+  --content-visual: var(--level-parent);
+  --content-file: var(--level-content);
+  --content-bookmark: var(--level-child);
+  --content-badge-bg: var(--fg);
+  --content-badge-fg: var(--page-bg);
+  --content-frozen-opacity: 0.55;
+
+  /* Player (barra in basso) */
+  --player-bg: var(--paper);
+  --player-fg: var(--ink);
+  --player-muted: var(--ink-muted);
+  --player-radius: var(--card-radius);
+  --player-shadow: var(--shadow-float);
+  --player-track: var(--paper-2);
+  --player-progress: var(--primary);
+  --player-button-bg: var(--primary);
+  --player-button-fg: var(--ink);
+  --player-height: 72px;
+  /* Spazio lasciato al player in fondo alla pagina; il player lo imposta quando compare. */
+  --player-offset: 0px;
+
   /* Field */
   --field-radius: var(--r-sm);
   --field-bg: var(--inset-bg);

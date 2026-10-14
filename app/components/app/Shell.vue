@@ -32,6 +32,8 @@ const items = [
       <slot />
     </main>
 
+    <UiToasts />
+
     <!-- The persistent player is mounted here by the app layout (phase 2.7). -->
     <slot name="player" />
   </div>
@@ -111,6 +113,8 @@ const items = [
   flex: 1;
   min-width: 0;
   padding: var(--s-8);
+  /* Room for the player bar when it is on screen. */
+  padding-bottom: calc(var(--s-8) + var(--player-offset));
 }
 
 /* Mobile: the sidebar becomes a bottom tab bar. */
@@ -156,7 +160,7 @@ const items = [
   }
 
   .shell__main {
-    padding: var(--s-5) var(--s-4) calc(88px + env(safe-area-inset-bottom));
+    padding: var(--s-5) var(--s-4) calc(88px + var(--player-offset) + env(safe-area-inset-bottom));
   }
 }
 </style>

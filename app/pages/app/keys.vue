@@ -9,6 +9,7 @@ const {
   status,
   open,
   createKey,
+  shiftKey,
   setBackground,
   setBackgroundFromCatalog,
   removeBackground,
@@ -35,8 +36,49 @@ async function load() {
 watch(() => route.query.map, load)
 onMounted(load)
 
+function goToMap(mapId) {
+  if (route.query.map === mapId || (!mapId && !route.query.map)) return load()
+  return navigateTo({ query: { ...route.query, map: mapId || undefined } })
+}
+
 function onMapChange(event) {
-  navigateTo({ query: { ...route.query, map: event.target.value } })
+  goToMap(event.target.value)
+}
+
+// New Map, empty or from a template
+const newMapOpen = ref(false)
+const newMapStart = ref('empty')
+
+function openNewMap(start) {
+  newMapStart.value = start
+  newMapOpen.value = true
+}
+
+// An empty Map offers its first steps: a template or a first Epikey.
+const isEmpty = computed(() => Boolean(tree.value) && !tree.value.Children?.length)
+const fillOpen = ref(false)
+const panel = ref(null)
+
+function startFirstKey() {
+  selectedId.value = tree.value.Id
+  nextTick(() => panel.value?.$el.querySelector('.page__form input')?.focus())
+}
+
+// The arrows on the selected Epikey move it among its siblings.
+const toast = useToast()
+
+async function onShift(keyId, step) {
+  try {
+    await shiftKey(keyId, step)
+  } catch {
+    toast.error(t('maps.edit.errors.order'))
+  }
+}
+
+// After a deletion the parent is selected; after deleting the Map, another one opens.
+function onDeleted(parentId) {
+  if (parentId) selectedId.value = parentId
+  else goToMap(maps.value[0]?.Id)
 }
 
 // New Epikey under the selected one
@@ -64,6 +106,11 @@ async function onCreate() {
 const BACKGROUND_SIZE = 1600
 const backgroundUrl = computed(() => image(tree.value?.BackgroundImage, BACKGROUND_SIZE))
 const backgroundPreview = computed(() => image(tree.value?.BackgroundImage, 320))
+// Maps copied from a template name an image of the template account, which cannot be loaded.
+const previewBroken = ref(false)
+watch(backgroundPreview, () => {
+  previewBroken.value = false
+})
 const fileInput = ref(null)
 const backgroundBusy = ref(false)
 const backgroundError = ref(null)
@@ -127,13 +174,22 @@ function onDimChange() {
       <h1>
         Map <strong>{{ tree?.Text }}</strong>
       </h1>
-      <label v-if="maps.length > 1" class="page__switch">
-        <span>{{ t('maps.switch') }}</span>
-        <select :value="tree?.Id" @change="onMapChange">
-          <option v-for="map in maps" :key="map.Id" :value="map.Id">{{ map.Text }}</option>
-        </select>
-      </label>
+      <div class="page__tools">
+        <label v-if="maps.length > 1" class="page__switch">
+          <span>{{ t('maps.switch') }}</span>
+          <select :value="tree?.Id" @change="onMapChange">
+            <option v-for="map in maps" :key="map.Id" :value="map.Id">{{ map.Text }}</option>
+          </select>
+        </label>
+        <UiButton variant="secondary" :disabled="!tree" @click="openNewMap('empty')">
+          <UiIcon name="plus" />
+          {{ t('maps.newMap.open') }}
+        </UiButton>
+      </div>
     </header>
+
+    <MapNewDialog v-model:open="newMapOpen" :start="newMapStart" @created="goToMap($event.Id)" />
+    <MapFillDialog v-model:open="fillOpen" />
 
     <UiAlert v-if="status === 'error'">
       {{ t('maps.errors.load') }}
@@ -142,28 +198,40 @@ function onDimChange() {
     <p v-else-if="!tree" class="muted" role="status">{{ t('maps.loading') }}</p>
 
     <div v-else class="page__body">
-      <ClientOnly>
-        <MapCanvas
-          class="page__canvas"
-          :tree="tree"
-          :selected-id="selectedId"
-          :background="backgroundUrl"
-          :dim="dim"
-          :create="createKey"
-          @select="selectedId = $event"
-        />
-      </ClientOnly>
-
-      <UiCard class="page__panel">
-        <template v-if="selected">
-          <div class="page__selected">
-            <EpikeyHex :size="56" :color="epikeyColorId(selected.Color)" />
-            <div>
-              <p class="page__name">{{ selected.Text }}</p>
-              <p class="muted">{{ t('maps.links', selected.LinksCount ?? 0) }}</p>
-            </div>
+      <div class="page__stage">
+        <section v-if="isEmpty" class="page__empty" :aria-label="t('maps.empty.title')">
+          <h2>{{ t('maps.empty.title') }}</h2>
+          <p class="muted">{{ t('maps.empty.text') }}</p>
+          <div class="page__actions">
+            <UiButton @click="fillOpen = true">
+              <UiIcon name="template" />
+              {{ t('maps.empty.template') }}
+            </UiButton>
+            <UiButton variant="secondary" @click="startFirstKey">
+              <UiIcon name="plus" />
+              {{ t('maps.empty.first') }}
+            </UiButton>
           </div>
+        </section>
 
+        <ClientOnly>
+          <MapCanvas
+            class="page__canvas"
+            :tree="tree"
+            :selected-id="selectedId"
+            :background="backgroundUrl"
+            :dim="dim"
+            :create="createKey"
+            :shift="onShift"
+            @select="selectedId = $event"
+          />
+        </ClientOnly>
+      </div>
+
+      <UiCard ref="panel" class="page__panel">
+        <!-- Mounted while the Epikey is being deleted too, so it can say where to go next. -->
+        <MapKeyEditor v-if="selectedId" :key-id="selectedId" @deleted="onDeleted" />
+        <template v-if="selected">
           <form class="page__form" @submit.prevent="onCreate">
             <h2>{{ t('maps.newKey.title') }}</h2>
             <p class="muted">{{ t('maps.newKey.under', { parent: selected.Text }) }}</p>
@@ -179,7 +247,14 @@ function onDimChange() {
 
         <section class="page__background" :aria-busy="backgroundBusy">
           <h2>{{ t('maps.background.title') }}</h2>
-          <img v-if="backgroundPreview" class="page__preview" :src="backgroundPreview" alt="" />
+          <img
+            v-if="backgroundPreview && !previewBroken"
+            class="page__preview"
+            :src="backgroundPreview"
+            alt=""
+            @error="previewBroken = true"
+          />
+          <p v-else-if="backgroundPreview" class="muted">{{ t('maps.background.missing') }}</p>
           <p v-else class="muted">{{ t('maps.background.none') }}</p>
 
           <input
@@ -238,7 +313,7 @@ function onDimChange() {
   flex-direction: column;
   gap: var(--s-6);
   /* Fill the viewport, so the canvas takes the space left under the title. */
-  height: calc(100dvh - 2 * var(--s-8));
+  height: calc(100dvh - 2 * var(--s-8) - var(--player-offset));
   min-height: 560px;
 }
 
@@ -286,9 +361,49 @@ function onDimChange() {
   min-height: 0;
 }
 
+.page__stage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-width: 0;
+}
+
 .page__canvas {
   flex: 1;
   min-width: 0;
+}
+
+.page__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-4);
+}
+
+/* First steps of an empty Map, above the canvas so the root Epikey stays in view. */
+.page__empty {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-6);
+  border-radius: var(--card-radius);
+  background: var(--card-bg);
+  text-align: center;
+}
+
+.page__empty h2 {
+  font-size: var(--fs-h2);
+}
+
+.page__empty p {
+  max-width: 56ch;
+}
+
+.page__empty .page__actions {
+  justify-content: center;
 }
 
 .page__panel {
@@ -298,17 +413,6 @@ function onDimChange() {
   gap: var(--s-6);
   width: 320px;
   overflow-y: auto;
-}
-
-.page__selected {
-  display: flex;
-  align-items: center;
-  gap: var(--s-4);
-}
-
-.page__name {
-  font-weight: var(--fw-bold);
-  overflow-wrap: anywhere;
 }
 
 .page__background {
@@ -360,6 +464,8 @@ function onDimChange() {
   display: flex;
   flex-direction: column;
   gap: var(--s-4);
+  padding-top: var(--s-6);
+  border-top: 1px solid var(--border);
 }
 
 @media (width < 800px) {
@@ -370,6 +476,10 @@ function onDimChange() {
 
   .page__body {
     flex-direction: column;
+  }
+
+  .page__stage {
+    flex: none;
   }
 
   .page__canvas {

@@ -30,5 +30,17 @@ export const KeyTreeSchema = KeySchema.extend({
   },
 })
 
+/**
+ * A group of ready-made Maps (`MapTemplateData`): a theme such as music or audio books.
+ * Its images belong to the template account and cannot be loaded by the user.
+ */
+export const TemplateSchema = z.object({
+  Id: z.string(),
+  Name: z.string().nullish(),
+  Description: z.string().nullish(),
+  Maps: z.array(KeyTreeSchema).nullish(),
+})
+
 /** @typedef {z.infer<typeof KeySchema>} Key */
 /** @typedef {Key & { Children?: KeyTree[] | null }} KeyTree */
+/** @typedef {z.infer<typeof TemplateSchema>} Template */

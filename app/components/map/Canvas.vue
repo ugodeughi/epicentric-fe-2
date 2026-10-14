@@ -32,6 +32,11 @@ const props = defineProps({
    * Epikey offers a + to add one under it.
    */
   create: { type: Function, default: null },
+  /**
+   * Moves an Epikey among its siblings: `(keyId, step) => Promise`, step -1 earlier, +1 later.
+   * When given, the selected Epikey shows two arrows next to its +.
+   */
+  shift: { type: Function, default: null },
 })
 const emit = defineEmits(['select'])
 
@@ -177,6 +182,31 @@ function openAdd(node) {
   nextTick(() => addInput.value?.focus())
 }
 
+// Place of an Epikey among its siblings, for the arrows of the selected one.
+function placeOf(id) {
+  const siblings = findParent(props.tree, id)?.Children ?? []
+  return { index: siblings.findIndex((key) => key.Id === id), count: siblings.length }
+}
+
+const shifting = ref(false)
+
+async function shiftNode(id, step) {
+  if (shifting.value) return
+  shifting.value = true
+  try {
+    await props.shift(id, step)
+  } finally {
+    shifting.value = false
+    // The node is drawn again in its new place: the keyboard stays on the arrow, or on the
+    // other one when the Epikey has reached the end.
+    nextTick(() => {
+      const arrows = [...(container.value?.querySelectorAll(`[data-order="${CSS.escape(id)}"]`) ?? [])]
+      const same = arrows.find((arrow) => arrow.dataset.step === String(step) && !arrow.disabled)
+      ;(same ?? arrows.find((arrow) => !arrow.disabled))?.focus()
+    })
+  }
+}
+
 function closeAdd() {
   const id = adding.value
   adding.value = null
@@ -319,6 +349,38 @@ const labelScale = computed(() =>
         >
           <UiIcon name="plus" :size="18" />
         </button>
+        <div
+          v-if="shift && node.id === selectedId && placeOf(node.id).count > 1"
+          class="map__order nodrag"
+          :class="`map__order--${node.sourcePosition}`"
+          :style="{ '--_scale': labelScale }"
+        >
+          <!-- Siblings sit side by side when the Map grows downwards, one above the other when it grows to the right. -->
+          <button
+            type="button"
+            class="map__arrow"
+            :aria-label="t('maps.edit.earlierNamed', { name: node.data.key.Text })"
+            :title="t('maps.edit.earlier')"
+            :data-order="node.id"
+            data-step="-1"
+            :disabled="shifting || placeOf(node.id).index <= 0"
+            @click="shiftNode(node.id, -1)"
+          >
+            <UiIcon :name="node.sourcePosition === 'bottom' ? 'left' : 'up'" :size="16" />
+          </button>
+          <button
+            type="button"
+            class="map__arrow"
+            :aria-label="t('maps.edit.laterNamed', { name: node.data.key.Text })"
+            :title="t('maps.edit.later')"
+            :data-order="node.id"
+            data-step="1"
+            :disabled="shifting || placeOf(node.id).index >= placeOf(node.id).count - 1"
+            @click="shiftNode(node.id, 1)"
+          >
+            <UiIcon :name="node.sourcePosition === 'bottom' ? 'right' : 'down'" :size="16" />
+          </button>
+        </div>
         <Handle type="source" :position="node.sourcePosition" class="map__handle" />
       </template>
 
@@ -492,6 +554,54 @@ const labelScale = computed(() =>
 }
 
 .map__add:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Order among the siblings, on the selected Epikey, next to its +: above it when the Map
+   grows downwards (the + is on the right side), to its left when it grows to the right
+   (the + is at the bottom, the branch toggle on the right). */
+.map__order {
+  position: absolute;
+  display: flex;
+  gap: var(--s-1);
+  pointer-events: all;
+}
+
+.map__order--bottom {
+  top: 0;
+  right: 0;
+  transform: translate(35%, -10%) scale(var(--_scale));
+  transform-origin: right top;
+}
+
+.map__order--right {
+  bottom: 0;
+  left: 0;
+  transform: translate(-35%, 25%) scale(var(--_scale));
+  transform-origin: left bottom;
+}
+
+.map__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--map-toggle-size);
+  height: var(--map-toggle-size);
+  padding: 0;
+  border: 0;
+  border-radius: var(--map-toggle-radius);
+  background: var(--map-toggle-bg);
+  color: var(--map-toggle-fg);
+  cursor: pointer;
+}
+
+.map__arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.map__arrow:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }

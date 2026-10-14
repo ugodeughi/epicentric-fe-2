@@ -16,5 +16,32 @@ export const ICONS = {
   search: '<circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4" stroke-linecap="round"/>',
   logout:
     '<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h9" stroke-linecap="round" stroke-linejoin="round"/>',
+  close: '<path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/>',
+  left: '<path d="M19 12H5M11 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/>',
+  right: '<path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>',
+  up: '<path d="M12 19V5M6 11l6-6 6 6" stroke-linecap="round" stroke-linejoin="round"/>',
+  down: '<path d="M12 5v14M6 13l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>',
+  move: '<path d="M5 4v7a3 3 0 0 0 3 3h11M15 10l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>',
+  trash:
+    '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-12M9 7V4h6v3" stroke-linecap="round" stroke-linejoin="round"/>',
+  template:
+    '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><path d="M16.5 13.5v6M13.5 16.5h6" stroke-linecap="round"/>',
+  music:
+    '<path d="M9 18V6l10-2v12" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>',
+  image:
+    '<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="m4 18 5.5-5 4 3.5 3-2.5 4 3.5" stroke-linejoin="round"/>',
+  video:
+    '<rect x="3" y="5.5" width="13" height="13" rx="2.5"/><path d="m16 10.5 5-3v9l-5-3" stroke-linejoin="round"/>',
+  file: '<path d="M6 3.5h8l4 4v13H6z" stroke-linejoin="round"/><path d="M14 3.5v4h4M9 13h6M9 16.5h6" stroke-linecap="round"/>',
+  bookmark: '<path d="M7 3.5h10v17l-5-3.5-5 3.5z" stroke-linejoin="round"/>',
+  freeze:
+    '<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9.5 4.5 12 6l2.5-1.5M9.5 19.5 12 18l2.5 1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+  upload: '<path d="M12 16V4M7 9l5-5 5 5M5 20h14" stroke-linecap="round" stroke-linejoin="round"/>',
+  pause:
+    '<rect x="6.5" y="5" width="3.5" height="14" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="5" width="3.5" height="14" rx="1" fill="currentColor" stroke="none"/>',
+  playSolid: '<path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke-linejoin="round"/>',
+  previous:
+    '<path d="M7 5v14" stroke-linecap="round"/><path d="M18 5.5v13L9 12z" fill="currentColor" stroke-linejoin="round"/>',
+  next: '<path d="M17 5v14" stroke-linecap="round"/><path d="M6 5.5v13L15 12z" fill="currentColor" stroke-linejoin="round"/>',
   check: '<path d="m5 12.5 4.5 4.5L19 7.5" stroke-linecap="round" stroke-linejoin="round"/>',
 }

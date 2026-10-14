@@ -76,9 +76,63 @@
     }
   },
   "catalog": {
-    "all": "Tutto",
     "sections": "Sezioni del Catalog",
-    "empty": "I tuoi contenuti compariranno qui."
+    "search": "Cerca nel Catalog",
+    "searchPlaceholder": "Cerca titoli, artisti, nomi di file…",
+    "total": "Nessun contenuto | {n} contenuto | {n} contenuti",
+    "results": "Nessun risultato | {n} risultato | {n} risultati",
+    "loading": "Carico…",
+    "more": "Mostra altri",
+    "kinds": {
+      "audio": "Audio",
+      "image": "Immagine",
+      "video": "Video",
+      "embed": "Video incorporato",
+      "file": "File",
+      "bookmark": "Bookmark"
+    },
+    "linksCount": "{n} Link",
+    "noLinks": "Senza Link",
+    "freeze": "Freeze di {name}: resta fuori dalle playlist",
+    "unfreeze": "Togli il Freeze a {name}",
+    "freezeShort": "Freeze",
+    "unfreezeShort": "Togli il Freeze",
+    "frozen": "«{name}» è Frozen: resta fuori dalle playlist.",
+    "unfrozen": "«{name}» torna nelle playlist.",
+    "filters": {
+      "noLinks": "Senza Link",
+      "partial": "Il filtro vale sui contenuti caricati finora: scorri per vederne altri."
+    },
+    "sort": {
+      "label": "Ordina",
+      "recent": "Più recenti",
+      "oldest": "Meno recenti",
+      "name": "Nome (A-Z)"
+    },
+    "empty": {
+      "audio": "Nessun contenuto audio. Carica brani, podcast o registrazioni dal dispositivo.",
+      "visual": "Nessuna immagine o video. Carica foto e video dal dispositivo.",
+      "files": "Nessun file. Carica PDF e documenti dal dispositivo.",
+      "bookmarks": "Nessun bookmark. Potrai salvare le pagine web da riaprire quando arriverà l’aggiunta da URL.",
+      "search": "Nessun contenuto corrisponde a «{q}».",
+      "filtered": "Nessuno dei contenuti caricati corrisponde ai filtri."
+    },
+    "upload": {
+      "label": "Carica",
+      "first": "Carica dal dispositivo",
+      "working": "Carico…",
+      "done": "Nessun contenuto caricato | {n} contenuto caricato. | {n} contenuti caricati.",
+      "quota": "Non c’è abbastanza spazio nel tuo piano per «{name}».",
+      "duplicated": "«{name}» è già nel Catalog.",
+      "network": "Connessione assente: «{name}» non è stato caricato.",
+      "failed": "Non è stato possibile caricare «{name}»."
+    },
+    "errors": {
+      "load": "Non è stato possibile caricare il Catalog.",
+      "freeze": "Non è stato possibile cambiare il Freeze. Riprova."
+    },
+    "play": "Ascolta {name}",
+    "pause": "Metti in pausa {name}"
   },
   "maps": {
     "canvasLabel": "Map degli Epikey",
@@ -93,7 +147,7 @@
     "newKey": {
       "title": "Nuovo Epikey",
       "under": "Sotto {parent}",
-      "name": "Nome",
+      "name": "Nome del nuovo Epikey",
       "color": "Colore",
       "submit": "Aggiungi Epikey",
       "submitting": "Aggiungo…"
@@ -127,7 +181,8 @@
       "loading": "Carico le immagini…",
       "empty": "Nel Catalog non ci sono ancora immagini.",
       "noMatch": "Nessuna immagine con questo nome.",
-      "more": "Mostra altre"
+      "more": "Mostra altre",
+      "missing": "L'immagine scelta non è disponibile: caricane un'altra o scegline una dal Catalog."
     },
     "add": {
       "open": "Aggiungi un Epikey sotto {name}",
@@ -136,6 +191,74 @@
       "placeholder": "Nome",
       "submit": "Crea",
       "cancel": "Annulla"
+    },
+    "cancel": "Annulla",
+    "working": "Un momento…",
+    "newMap": {
+      "open": "Nuova Map",
+      "title": "Nuova Map",
+      "how": "Come vuoi iniziare",
+      "empty": "Vuota",
+      "fromTemplate": "Da un template",
+      "name": "Nome della Map",
+      "templateHint": "La nuova Map avrà gli stessi Epikey del template; potrai rinominarli, spostarli o eliminarli.",
+      "submit": "Crea la Map",
+      "done": "Map «{name}» creata.",
+      "error": "Non è stato possibile creare la Map. Riprova."
+    },
+    "templates": {
+      "loading": "Carico i template…",
+      "error": "Non è stato possibile caricare i template.",
+      "none": "Per ora non ci sono template.",
+      "count": "nessun Epikey | {n} Epikey | {n} Epikey"
+    },
+    "empty": {
+      "title": "Questa Map è vuota",
+      "text": "Parti da un template già pronto, con gli Epikey per musica, audio, immagini e sessioni guidate, oppure crea il tuo primo Epikey.",
+      "template": "Parti da un template",
+      "first": "Crea il primo Epikey"
+    },
+    "fill": {
+      "title": "Parti da un template",
+      "hint": "Gli Epikey del template vengono aggiunti a «{map}». Potrai rinominarli, spostarli o eliminarli.",
+      "submit": "Aggiungi gli Epikey",
+      "done": "Epikey di «{name}» aggiunti.",
+      "error": "Non è stato possibile aggiungere tutti gli Epikey del template. Riprova."
+    },
+    "edit": {
+      "name": "Nome",
+      "rename": "Salva il nome",
+      "renamed": "Nome salvato.",
+      "color": "Colore",
+      "earlier": "Sposta prima",
+      "later": "Sposta dopo",
+      "move": "Sposta in…",
+      "moveTitle": "Sposta «{name}»",
+      "moveUnder": "Mettilo sotto",
+      "moveSubmit": "Sposta qui",
+      "nowhere": "Non ci sono altri Epikey in cui spostarlo.",
+      "moved": "«{name}» ora è sotto «{parent}».",
+      "delete": "Elimina",
+      "deleteMap": "Elimina la Map",
+      "deleteTitle": "Eliminare «{name}»?",
+      "deleteMapTitle": "Eliminare la Map «{name}»?",
+      "loses": "Con lui spariscono anche {what}.",
+      "losesNothing": "Non contiene altri Epikey né Link.",
+      "keysCount": "nessun Epikey | {n} Epikey | {n} Epikey",
+      "contentsStay": "I contenuti restano nel Catalog.",
+      "deleteConfirm": "Elimina",
+      "deleted": "«{name}» eliminato.",
+      "mapDeleted": "Map «{name}» eliminata.",
+      "errors": {
+        "rename": "Non è stato possibile salvare il nome. Riprova.",
+        "color": "Non è stato possibile salvare il colore. Riprova.",
+        "order": "Non è stato possibile cambiare l'ordine. Riprova.",
+        "move": "Non è stato possibile spostare l'Epikey. Riprova.",
+        "delete": "Non è stato possibile eliminare. Riprova."
+      },
+      "and": " e ",
+      "earlierNamed": "Sposta {name} prima",
+      "laterNamed": "Sposta {name} dopo"
     }
   },
   "epikey": {
@@ -155,5 +278,18 @@
   "ui": {
     "showPassword": "Mostra la password",
     "hidePassword": "Nascondi la password"
+  },
+  "dialog": {
+    "close": "Chiudi"
+  },
+  "player": {
+    "label": "Player",
+    "loading": "Preparo l’ascolto…",
+    "play": "Riproduci",
+    "pause": "Pausa",
+    "next": "Traccia successiva",
+    "previous": "Traccia precedente",
+    "close": "Chiudi il player",
+    "error": "Non è stato possibile riprodurre «{name}»."
   }
 }

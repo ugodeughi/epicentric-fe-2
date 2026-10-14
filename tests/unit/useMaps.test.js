@@ -3,7 +3,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useMaps } from '../../app/composables/useMaps'
 
 const api = vi.hoisted(() => ({
-  maps: { list: vi.fn(), tree: vi.fn(), createKey: vi.fn(), updateKey: vi.fn() },
+  maps: {
+    list: vi.fn(),
+    tree: vi.fn(),
+    createKey: vi.fn(),
+    updateKey: vi.fn(),
+    createMap: vi.fn(),
+    deleteKey: vi.fn(),
+    moveKey: vi.fn(),
+    setOrder: vi.fn(),
+    templates: vi.fn(),
+    importTemplate: vi.fn(),
+    addTemplateKey: vi.fn(),
+  },
   items: { upload: vi.fn(), load: vi.fn() },
 }))
 mockNuxtImport('useApi', () => () => api)
@@ -183,5 +195,136 @@ describe('Map background', () => {
 
     await setBackgroundDim(7)
     expect(tree.value.Opacity).toBe(1)
+  })
+})
+
+describe('editing the Map', () => {
+  const big = {
+    Id: 'm1',
+    Text: 'Work',
+    Children: [
+      { Id: 'a', Text: 'A', Children: [{ Id: 'a1', Text: 'A1', Children: [] }] },
+      { Id: 'b', Text: 'B', Children: [] },
+      { Id: 'c', Text: 'C', Children: [] },
+    ],
+  }
+  const ids = (key) => key.Children.map((child) => child.Id)
+
+  beforeEach(() => {
+    api.maps.tree.mockImplementation(async () => structuredClone(big))
+    api.maps.updateKey.mockImplementation(async (key, fields) => ({ ...key, ...fields }))
+  })
+
+  it('renames an Epikey, and a Map also in the list of Maps', async () => {
+    const { maps, tree, open, renameKey } = useMaps()
+    await open()
+
+    await renameKey('b', ' Bee ')
+    expect(api.maps.updateKey).toHaveBeenLastCalledWith(expect.objectContaining({ Id: 'b' }), { Text: 'Bee' })
+    expect(tree.value.Children[1].Text).toBe('Bee')
+
+    await renameKey('m1', 'Office')
+    expect(tree.value.Text).toBe('Office')
+    expect(maps.value[0].Text).toBe('Office')
+    expect(api.maps.tree).toHaveBeenCalledTimes(1)
+  })
+
+  it('saves a palette colour as its hex value and reloads the Map', async () => {
+    const { open, setKeyColor } = useMaps()
+    await open()
+
+    await setKeyColor('a', 'pink')
+
+    expect(api.maps.updateKey).toHaveBeenCalledWith(expect.objectContaining({ Id: 'a' }), {
+      Color: '#E86A92',
+      ColorChanged: true,
+    })
+    expect(api.maps.tree).toHaveBeenCalledTimes(2)
+  })
+
+  it('moves an Epikey to the end of its new siblings', async () => {
+    const { open, moveKey } = useMaps()
+    await open()
+
+    await moveKey('c', 'a')
+
+    expect(api.maps.moveKey).toHaveBeenCalledWith('c', 'a')
+    expect(api.maps.setOrder).toHaveBeenCalledWith(['a1', 'c'])
+    expect(api.maps.tree).toHaveBeenCalledTimes(2)
+  })
+
+  it('moves an Epikey among its siblings at once, and back when the backend refuses', async () => {
+    const { tree, open, shiftKey } = useMaps()
+    await open()
+
+    await expect(shiftKey('c', -1)).resolves.toBe(true)
+    expect(api.maps.setOrder).toHaveBeenLastCalledWith(['a', 'c', 'b'])
+    expect(ids(tree.value)).toEqual(['a', 'c', 'b'])
+
+    await expect(shiftKey('a', -1)).resolves.toBe(false)
+
+    api.maps.setOrder.mockRejectedValueOnce(new Error('down'))
+    await expect(shiftKey('a', 1)).rejects.toThrow('down')
+    expect(ids(tree.value)).toEqual(['a', 'c', 'b'])
+  })
+
+  it('deletes an Epikey and reloads the Map', async () => {
+    const { open, deleteKey } = useMaps()
+    await open()
+
+    await deleteKey('a')
+
+    expect(api.maps.deleteKey).toHaveBeenCalledWith('a')
+    expect(api.maps.tree).toHaveBeenCalledTimes(2)
+  })
+
+  it('deletes the open Map and takes it out of the list', async () => {
+    const { maps, open, deleteKey } = useMaps()
+    await open()
+
+    await deleteKey('m1')
+
+    expect(maps.value.map((map) => map.Id)).toEqual(['m2'])
+    expect(api.maps.tree).toHaveBeenCalledTimes(1)
+  })
+
+  it('creates an empty Map, or one from a template, last in the list', async () => {
+    const { maps, open, createMap, importTemplate } = useMaps()
+    await open()
+    api.maps.createMap.mockResolvedValue({ Id: 'm3', Text: 'Trips', IsRoot: true })
+    api.maps.importTemplate.mockResolvedValue({ Id: 'm4', Text: 'WORKOUT', IsRoot: true })
+
+    await createMap('Trips')
+    await importTemplate('tm1')
+
+    expect(api.maps.createMap).toHaveBeenCalledWith({ text: 'Trips', order: 3 })
+    expect(api.maps.importTemplate).toHaveBeenCalledWith('tm1')
+    expect(maps.value.map((map) => map.Id)).toEqual(['m1', 'm2', 'm3', 'm4'])
+  })
+
+  it('loads the templates once', async () => {
+    const { templates, loadTemplates } = useMaps()
+    api.maps.templates.mockResolvedValue([{ Id: 't1', Maps: [] }])
+
+    await loadTemplates()
+    await loadTemplates()
+
+    expect(api.maps.templates).toHaveBeenCalledTimes(1)
+    expect(templates.value).toEqual([{ Id: 't1', Maps: [] }])
+  })
+
+  it('fills the open Map with the Epikeys of a template, in order, and shows what was added', async () => {
+    const { open, fillFromTemplate } = useMaps()
+    await open()
+    const template = { Id: 'tm1', Children: [{ Id: 'tk1' }, { Id: 'tk2' }, { Id: 'tk3' }] }
+
+    api.maps.addTemplateKey.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('down'))
+    await expect(fillFromTemplate(template)).rejects.toThrow('down')
+
+    expect(api.maps.addTemplateKey.mock.calls).toEqual([
+      [{ parentId: 'm1', templateKeyId: 'tk1' }],
+      [{ parentId: 'm1', templateKeyId: 'tk2' }],
+    ])
+    expect(api.maps.tree).toHaveBeenCalledTimes(2)
   })
 })
