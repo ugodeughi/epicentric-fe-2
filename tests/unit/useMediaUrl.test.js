@@ -30,6 +30,15 @@ describe('useMediaUrl', () => {
     expect(useMediaUrl().thumb(null)).toBeNull()
   })
 
+  it('builds the address of the audio stream of a playlist track, from a whole second', () => {
+    const base = useRuntimeConfig().public.apiBase
+    expect(useMediaUrl().stream('lfh6vn')).toBe(
+      `${base}streaming/user-1/audio/0/lfh6vn?token=jwt.with%2Bodd%2Fchars`,
+    )
+    expect(useMediaUrl().stream('lfh6vn', 41.6)).toContain('/audio/42/lfh6vn?')
+    expect(useMediaUrl().stream(null)).toBeNull()
+  })
+
   it('gives nothing without a file or outside a session', () => {
     expect(useMediaUrl().image(null, 100)).toBeNull()
     useSession().clearSession()

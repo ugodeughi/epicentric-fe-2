@@ -29,5 +29,20 @@ export function useMediaUrl() {
     return `${base}items/thumb/${path}?token=${encodeURIComponent(token.value)}`
   }
 
-  return { image, thumb }
+  /**
+   * The audio stream of a playlist track, as MP3. The server cannot seek inside a stream:
+   * to start elsewhere a new address with another `position` is needed.
+   * @param {string | null | undefined} trackId
+   * @param {number} [position] seconds; 0 starts at the beginning of the track's window
+   * @returns {string | null}
+   */
+  function stream(trackId, position = 0) {
+    if (!trackId || !user.value?.Id || !token.value) return null
+    const path = [user.value.Id, 'audio', Math.max(0, Math.round(position)), trackId]
+      .map(encodeURIComponent)
+      .join('/')
+    return `${base}streaming/${path}?token=${encodeURIComponent(token.value)}`
+  }
+
+  return { image, thumb, stream }
 }

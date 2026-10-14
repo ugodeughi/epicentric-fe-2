@@ -239,6 +239,7 @@ Risposta delle tre `POST`: la playlist, con `AudioTracks`, `VideoTracks`, `Bookm
 - L'audiocrop è **applicato dal server**: il flusso parte da `SkipTo` e si ferma a `End`. `currentTime` dell'elemento parte da 0 e la durata non è nota al browser: per barra e tempi si usa `PlayDuration`.
 - `:trackId` è l'`Id` della traccia nella playlist, non l'id del contenuto. La playlist va creata prima dello streaming.
 - Volume, EQ e fade **non** sono applicati dal server.
+- I contenuti **template** (`IsTemplate: true`, i brani di esempio comuni a tutti gli account) si leggono da `<storage>/templates/<FileName>`, non dalla cartella dell'utente. Verificato il 14 ott 2026: in locale quella cartella mancava e lo streaming rispondeva 500.
 
 `POST streaming/position` con `{ position, index, type: "audio" | "video" }` → `"ok"`. La legacy invia `{ ParentId, Item: { Position, Index } }`, che il backend Node non legge: oggi il salvataggio della posizione dalla legacy non ha effetto.
 
