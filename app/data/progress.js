@@ -1,7 +1,7 @@
 // Content of the provisional /progress page. Italian only on purpose: the page is a
 // temporary status report for the project team, not part of the product (see CLAUDE.md).
 
-export const PROGRESS_UPDATED = '11 ottobre 2026'
+export const PROGRESS_UPDATED = '14 ottobre 2026'
 
 /** @type {{ title: string, intro?: string, items: { title: string, detail: string }[] }[]} */
 export const PROGRESS_DONE = [
@@ -86,6 +86,16 @@ export const PROGRESS_DONE = [
         detail: 'Con i 10 colori della palette, dimensione variabile e stato selezionato.',
       },
       { title: 'Icone', detail: 'Icone vettoriali a tratto incluse nell’app.' },
+      {
+        title: 'Finestra di dialogo',
+        detail:
+          'Per conferme e scelte: si chiude con Esc o con un clic fuori, e tiene la tastiera al suo interno.',
+      },
+      {
+        title: 'Notifiche',
+        detail:
+          'Brevi messaggi in basso che confermano un’operazione o segnalano un errore, e spariscono da soli.',
+      },
     ],
   },
   {
@@ -99,10 +109,6 @@ export const PROGRESS_DONE = [
       {
         title: 'Barra in basso su telefono',
         detail: 'Sotto gli 800 px la navigazione passa in fondo allo schermo.',
-      },
-      {
-        title: 'Pagina Catalog',
-        detail: 'Presente come segnaposto, con le sezioni Audio, Visual, Other Files e Bookmarks.',
       },
       {
         title: 'Italiano e inglese',
@@ -234,9 +240,9 @@ export const PROGRESS_DONE = [
     title: 'Qualità e pubblicazione',
     items: [
       {
-        title: '108 test automatici sulla logica',
+        title: '150 test automatici sulla logica',
         detail:
-          'Client API, chiamate utente, calcolo dell’età, coerenza dei temi, componenti, disposizione e adattamento della Map, sfondi, colori degli Epikey.',
+          'Client API, chiamate utente, calcolo dell’età, coerenza dei temi, componenti, disposizione e adattamento della Map, sfondi, colori, modifica degli Epikey, template, notifiche, Catalog, player.',
       },
       {
         title: '10 test automatici nel browser',
@@ -271,6 +277,48 @@ export const PROGRESS_DONE = [
         title: 'Verifica dell’accesso',
         detail:
           'Login, registrazione, conferma dell’email e recupero della password sono stati ricontrollati uno per uno rispetto al backend.',
+      },
+    ],
+  },
+  {
+    title: 'Catalog',
+    intro: 'La pagina Catalog mostra i contenuti dell’utente, una sezione alla volta.',
+    items: [
+      {
+        title: 'Quattro sezioni',
+        detail: 'Audio, Visual, Other Files e Bookmarks, ognuna con il numero dei suoi contenuti.',
+      },
+      {
+        title: 'Card dei contenuti',
+        detail:
+          'Miniatura per immagini e video, icona per gli altri; nome, artista o tipo, formato, durata e numero di Link.',
+      },
+      {
+        title: 'Ricerca e ordinamento',
+        detail:
+          'Si cerca per titolo, artista o nome del file e si ordina per data o per nome; la vista resta nell’indirizzo della pagina.',
+      },
+      {
+        title: 'Scorrimento continuo',
+        detail: 'I contenuti arrivano a gruppi di 50 man mano che si scorre.',
+      },
+      {
+        title: 'Filtri Senza Link e Frozen',
+        detail:
+          'Mostrano solo i contenuti non ancora collegati a un Epikey, o quelli esclusi dalle playlist.',
+      },
+      {
+        title: 'Freeze',
+        detail: 'Dalla card si esclude un contenuto dalle playlist, o lo si rimette, con un tocco.',
+      },
+      {
+        title: 'Caricamento',
+        detail: 'Si caricano uno o più file dal dispositivo; ogni sezione vuota lo propone come primo passo.',
+      },
+      {
+        title: 'Play dalla card',
+        detail:
+          'Come nella versione precedente, il Play su un contenuto audio lo fa ascoltare in un player in fondo alla pagina, con pausa, tempo trascorso e durata.',
       },
     ],
   },
@@ -323,6 +371,26 @@ export const PROGRESS_DONE = [
           'Chi ha più di una Map passa dall’una all’altra; la Map aperta resta nell’indirizzo della pagina.',
       },
       {
+        title: 'Nuova Map',
+        detail:
+          'Si crea una Map vuota dandole un nome, oppure si parte da una delle Map pronte dei template.',
+      },
+      {
+        title: 'Template',
+        detail:
+          'Le Map pronte per musica, immagini, audio e sessioni guidate. Una Map vuota li propone per primi: con un clic i loro Epikey entrano nella Map.',
+      },
+      {
+        title: 'Modifica degli Epikey',
+        detail:
+          'Dal pannello a lato si cambiano nome e colore di un Epikey o della Map, lo si sposta sotto un altro Epikey; le frecce accanto al + lo spostano prima o dopo i fratelli.',
+      },
+      {
+        title: 'Eliminazione con conferma',
+        detail:
+          'Prima di eliminare un Epikey o una Map si vede quanti Epikey e Link spariscono con lui; i contenuti restano nel Catalog.',
+      },
+      {
         title: 'Colori compatibili',
         detail:
           'I colori scelti nella versione precedente vengono mostrati con il colore più vicino tra i dieci disponibili.',
@@ -339,15 +407,15 @@ export const PROGRESS_NEXT = [
       'App installabile (PWA): icone, funzionamento senza rete, avviso di nuova versione',
       'Prototipo del player audio provato su telefoni reali',
       'Controlli automatici a ogni modifica sul repository (CI) e monitoraggio degli errori',
-      'Componenti mancanti: finestra di dialogo, pannello dal basso, notifiche, cursore',
+      'Componenti mancanti: pannello dal basso, cursore',
     ],
   },
   {
     title: 'Funzioni dell’MVP',
     items: [
-      'Catalog: elenchi, filtri, miniature, dettaglio e visualizzatori dei contenuti',
+      'Catalog: dettaglio e visualizzatori dei contenuti, selezione di più contenuti',
       'Acquisizione: caricamento di più file, download dal web, video incorporati, bookmark',
-      'Epikey: pagina del singolo Epikey, rinomina, cambio di padre, riordino, cancellazione, nuova Map, modelli',
+      'Epikey: pagina del singolo Epikey, con i suoi Link',
       'Map: posizioni degli Epikey salvate nell’account invece che sul dispositivo, sfondo per singolo Epikey',
       'Link: collegamento tra contenuti ed Epikey, riproduzione da Link, Freeze',
       'Player: playlist generate dal backend, versioni desktop e mobile, forma d’onda',
